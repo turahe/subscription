@@ -1,5 +1,5 @@
 {
-    "name": "turahe/subscription",
+    "name": "turahe/site-subscription",
     "description": "",
     "authors": [
         {
@@ -9,7 +9,9 @@
     ],
     "extra": {
         "laravel": {
-            "providers": [],
+            "providers": [
+                "Modules\\Subscription\\Providers\\SubscriptionServiceProvider"
+            ],
             "aliases": {
 
             }
