@@ -1,0 +1,30 @@
+{
+    "name": "turahe/subscription",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nur Wachid",
+            "email": "wachid@outlook.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Subscription\\": "app/",
+            "Modules\\Subscription\\Database\\Factories\\": "database/factories/",
+            "Modules\\Subscription\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Subscription\\Tests\\": "tests/"
+        }
+    }
+}
