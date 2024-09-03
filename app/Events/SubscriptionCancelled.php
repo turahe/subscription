@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Subscriptions\Events;
+namespace Modules\Subscription\Events;
 class SubscriptionCancelled
 {
     /**

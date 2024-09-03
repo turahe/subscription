@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Modules\Subscriptions\Models;
+namespace Modules\Subscription\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * Modules\Subscriptions\Models\SubscriptionUsage.
+ * Modules\Subscription\Models\SubscriptionUsage.
  *
  * @property int $id
  * @property int $subscription_id
@@ -25,20 +26,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read Feature $feature
  * @property-read Subscription $subscription
  *
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage byFeatureSlug($featureSlug)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage whereFeatureId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage whereSubscriptionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage whereUsed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\SubscriptionUsage whereValidUntil($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage byFeatureSlug($featureSlug)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage whereFeatureId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage whereSubscriptionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage whereUsed($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\SubscriptionUsage whereValidUntil($value)
  *
  */
 class SubscriptionUsage extends Model
 {
-    use HasFactory;
+    use HasUlids;
     use SoftDeletes;
 
     protected $fillable = [
@@ -47,6 +48,8 @@ class SubscriptionUsage extends Model
         'used',
         'valid_until',
     ];
+
+    protected $dateFormat = 'U';
 
     protected $casts = [
         'subscription_id' => 'integer',

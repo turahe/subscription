@@ -2,20 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Modules\Subscriptions\Models;
+namespace Modules\Subscription\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Modules\Subscriptions\Traits\HasSlug;
-use Modules\Subscriptions\Traits\HasTranslations;
+use Modules\Subscription\Traits\HasSlug;
+use Modules\Subscription\Traits\HasTranslations;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\EloquentSortable\Sortable;
 
 /**
- * Modules\Subscriptions\Models\Plan.
+ * Modules\Subscription\Models\Plan.
  *
  * @property int $id
  * @property string $slug
@@ -39,40 +40,40 @@ use Spatie\EloquentSortable\Sortable;
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * @property \Carbon\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscriptions\Models\Feature[] $features
- * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscriptions\Models\Subscription[] $subscriptions
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscription\Models\Feature[] $features
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscription\Models\Subscription[] $subscriptions
  *
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan ordered($direction = 'asc')
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereActiveSubscribersLimit($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereGraceInterval($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereGracePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereInvoiceInterval($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereInvoicePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereIsActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan wherePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereProrateDay($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereProrateExtendDue($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereProratePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereSignupFee($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereTrialInterval($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereTrialPeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Plan whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan ordered($direction = 'asc')
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereActiveSubscribersLimit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereGraceInterval($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereGracePeriod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereInvoiceInterval($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereInvoicePeriod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan wherePrice($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereProrateDay($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereProrateExtendDue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereProratePeriod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereSignupFee($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereSortOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereTrialInterval($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereTrialPeriod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereUpdatedAt($value)
  */
 class Plan extends Model implements Sortable
 {
     use HasFactory;
     use HasSlug;
-    use HasTranslations;
     use SoftDeletes;
     use SortableTrait;
+    use HasUlids;
 
     protected $fillable = [
         'slug',
@@ -115,18 +116,10 @@ class Plan extends Model implements Sortable
         'deleted_at' => 'datetime',
     ];
 
-    /**
-     * The attributes that are translatable.
-     *
-     * @var array
-     */
-    public $translatable = [
-        'name',
-        'description',
-    ];
+    protected $dateFormat = 'U';
 
     public array $sortable = [
-        'order_column_name' => 'sort_order',
+        'order_column_name' => 'record_ordering',
     ];
 
     public function getTable(): string

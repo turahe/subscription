@@ -2,23 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Modules\Subscriptions\Models;
+namespace Modules\Subscription\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Modules\Subscriptions\Traits\HasSlug;
-use Modules\Subscriptions\Traits\HasTranslations;
-use Modules\Subscriptions\Services\Period;
-use Modules\Subscriptions\Traits\BelongsToPlan;
+use Modules\Subscription\Traits\HasSlug;
+use Modules\Subscription\Services\Period;
+use Modules\Subscription\Traits\BelongsToPlan;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * Modules\Subscriptions\Models\PlanFeature.
+ * Modules\Subscription\Models\PlanFeature.
  *
  * @property int $id
  * @property int $plan_id
@@ -28,36 +27,35 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $value
  * @property int $resettable_period
  * @property string $resettable_interval
- * @property int $sort_order
+ * @property int $record_ordering
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Plan $plan
- * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscriptions\Models\SubscriptionUsage[] $usage
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscription\Models\SubscriptionUsage[] $usage
  *
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature byPlanId($planId)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature ordered($direction = 'asc')
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature wherePlanId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereResettableInterval($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereResettablePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Feature whereValue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature byPlanId($planId)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature ordered($direction = 'asc')
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature wherePlanId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereResettableInterval($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereResettablePeriod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereSortOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereValue($value)
  */
 class Feature extends Model implements Sortable
 {
     use BelongsToPlan;
-    use HasFactory;
     use HasSlug;
-    use HasTranslations;
     use SoftDeletes;
     use SortableTrait;
+    use HasUlids;
 
     protected $fillable = [
         'plan_id',
@@ -67,8 +65,10 @@ class Feature extends Model implements Sortable
         'value',
         'resettable_period',
         'resettable_interval',
-        'sort_order',
+        'record_ordering',
     ];
+
+    protected $dateFormat = 'U';
 
     protected $casts = [
         'plan_id' => 'integer',
@@ -76,7 +76,7 @@ class Feature extends Model implements Sortable
         'value' => 'string',
         'resettable_period' => 'integer',
         'resettable_interval' => 'string',
-        'sort_order' => 'integer',
+        'record_ordering' => 'integer',
         'deleted_at' => 'datetime',
     ];
 
@@ -91,7 +91,7 @@ class Feature extends Model implements Sortable
     ];
 
     public array $sortable = [
-        'order_column_name' => 'sort_order',
+        'order_column_name' => 'record_ordering',
     ];
 
     public function getTable(): string

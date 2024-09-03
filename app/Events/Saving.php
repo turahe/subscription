@@ -1,10 +1,10 @@
 <?php
 
-namespace Modules\Subscriptions\Events;
+namespace Modules\Subscription\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Modules\Subscriptions\Models\Plan;
+use Modules\Subscription\Models\Plan;
 
 class Saving
 {

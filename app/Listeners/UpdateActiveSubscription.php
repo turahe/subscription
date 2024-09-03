@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Subscriptions\Listeners;
+namespace Modules\Subscription\Listeners;
 
 use SubscriptionCancelled;
 

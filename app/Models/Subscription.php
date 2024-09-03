@@ -2,25 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Modules\Subscriptions\Models;
+namespace Modules\Subscription\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use Modules\Subscriptions\Services\Period;
-use Modules\Subscriptions\Traits\BelongsToPlan;
-use Modules\Subscriptions\Traits\HasSlug;
-use Modules\Subscriptions\Traits\HasTranslations;
+use Modules\Subscription\Services\Period;
+use Modules\Subscription\Traits\BelongsToPlan;
+use Modules\Subscription\Traits\HasSlug;
+use Modules\Subscription\Traits\HasTranslations;
 use LogicException;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * Modules\Subscriptions\Models\Subscription.
+ * Modules\Subscription\Models\Subscription.
  *
  * @property int $id
  * @property int $subscriber_id
@@ -38,37 +39,36 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read Plan $plan
- * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscriptions\Models\SubscriptionUsage[] $usage
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscription\Models\SubscriptionUsage[] $usage
  * @property-read Model $subscriber
  *
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription byPlanId($planId)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription findEndedPeriod()
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription findEndedTrial()
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription findEndingPeriod($dayRange = 3)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription findEndingTrial($dayRange = 3)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription ofSubscriber(\Illuminate\Database\Eloquent\Model $subscriber)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereCanceledAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereCancelsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereEndsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription wherePlanId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereStartsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereTrialEndsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereSubscriberId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscriptions\Models\Subscription whereSubscriberType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription byPlanId($planId)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription findEndedPeriod()
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription findEndedTrial()
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription findEndingPeriod($dayRange = 3)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription findEndingTrial($dayRange = 3)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription ofSubscriber(\Illuminate\Database\Eloquent\Model $subscriber)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereCanceledAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereCancelsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereEndsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription wherePlanId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereStartsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereTrialEndsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereSubscriberId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereSubscriberType($value)
  */
 class Subscription extends Model
 {
     use BelongsToPlan;
-    use HasFactory;
+    use HasUlids;
     use HasSlug;
-    use HasTranslations;
     use SoftDeletes;
 
     protected $fillable = [
@@ -84,6 +84,8 @@ class Subscription extends Model
         'cancels_at',
         'canceled_at',
     ];
+
+    protected $dateFormat = 'U';
 
     protected $casts = [
         'subscriber_id' => 'integer',

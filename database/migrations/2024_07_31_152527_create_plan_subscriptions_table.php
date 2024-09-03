@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create(config('subscription.tables.subscription'), function (Blueprint $table): void {
+        Schema::create(config('subscription.tables.subscriptions'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
 
             $table->ulidMorphs('subscriber');

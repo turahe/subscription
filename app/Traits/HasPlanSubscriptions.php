@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Modules\Subscriptions\Traits;
+namespace Modules\Subscription\Traits;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Modules\Subscriptions\Models\Subscription;
-use Modules\Subscriptions\Models\Plan;
-use Modules\Subscriptions\Services\Period;
+use Modules\Subscription\Models\Subscription;
+use Modules\Subscription\Models\Plan;
+use Modules\Subscription\Services\Period;
 
 trait HasPlanSubscriptions
 {

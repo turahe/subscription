@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Modules\Subscriptions;
+namespace Modules\Subscription\Enums;
 
 enum Interval: string
 {

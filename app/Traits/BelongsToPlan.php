@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Subscriptions\Traits;
+namespace Modules\Subscription\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

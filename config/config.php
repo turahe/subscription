@@ -28,9 +28,9 @@ return [
     */
 
     'models' => [
-        'plan' => Plan::class,
-        'feature' => Feature::class,
-        'subscription' => Subscription::class,
-        'subscription_usage' => SubscriptionUsage::class,
+        'plan' => \Modules\Subscription\Models\Plan::class,
+        'feature' => \Modules\Subscription\Models\Feature::class,
+        'subscription' => \Modules\Subscription\Models\Subscription::class,
+        'subscription_usage' => \Modules\Subscription\Models\SubscriptionUsage::class,
     ],
 ];

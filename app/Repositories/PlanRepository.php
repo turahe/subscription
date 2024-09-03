@@ -1,5 +1,5 @@
 <?php
 
-namespace Modules\Subscriptions\Repositories;
+namespace Modules\Subscription\Repositories;
 
 class PlanRepository {}

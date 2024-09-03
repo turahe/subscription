@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Subscriptions\Services;
+namespace Modules\Subscription\Services;
 
 use Carbon\Carbon;
 
