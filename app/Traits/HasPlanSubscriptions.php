@@ -11,14 +11,8 @@ use Modules\Subscription\Models\Plan;
 use Modules\Subscription\Models\Subscription;
 use Modules\Subscription\Services\Period;
 
-/**
- *
- */
 trait HasPlanSubscriptions
 {
-    /**
-     * @return void
-     */
     protected static function bootHasSubscriptions(): void
     {
         static::deleted(function ($plan): void {
@@ -39,26 +33,16 @@ trait HasPlanSubscriptions
         );
     }
 
-    /**
-     * @return Collection
-     */
     public function activePlanSubscriptions(): Collection
     {
         return $this->planSubscriptions->reject->inactive();
     }
 
-    /**
-     * @param string $subscriptionSlug
-     * @return Subscription|null
-     */
     public function planSubscription(string $subscriptionSlug): ?Subscription
     {
         return $this->planSubscriptions()->where('slug', $subscriptionSlug)->first();
     }
 
-    /**
-     * @return Collection
-     */
     public function subscribedPlans(): Collection
     {
         $planIds = $this->planSubscriptions->reject
@@ -69,10 +53,6 @@ trait HasPlanSubscriptions
         return tap(new (config('laravel-subscriptions.models.plan')))->whereIn('id', $planIds)->get();
     }
 
-    /**
-     * @param int $planId
-     * @return bool
-     */
     public function subscribedTo(int $planId): bool
     {
         $subscription = $this->planSubscriptions()
@@ -82,12 +62,6 @@ trait HasPlanSubscriptions
         return $subscription && $subscription->active();
     }
 
-    /**
-     * @param string $subscription
-     * @param Plan $plan
-     * @param Carbon|null $startDate
-     * @return Subscription
-     */
     public function newPlanSubscription(string $subscription, Plan $plan, ?Carbon $startDate = null): Subscription
     {
         $trial = new Period(

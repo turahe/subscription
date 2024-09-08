@@ -1,34 +1,34 @@
-
 # Module Subscriptions
 
-**Module Subscriptions** is a flexible plans and subscription management system for Module, with the required tools to run your SAAS like services efficiently. 
+**Module Subscriptions** is a flexible plans and subscription management system for Module, with the required tools to run your SAAS like services efficiently.
 It's simple architecture, accompanied by powerful underlying to afford solid platform for your business.
 
 ## Considerations
 
-- Payments are out of scope for this package.
-- You may want to extend some of the core models, in case you need to override the logic behind some helper methods like `renew()`, `cancel()` etc. E.g.: when cancelling a subscription you may want to also cancel the recurring payment attached.
-
+-   Payments are out of scope for this package.
+-   You may want to extend some of the core models, in case you need to override the logic behind some helper methods like `renew()`, `cancel()` etc. E.g.: when cancelling a subscription you may want to also cancel the recurring payment attached.
 
 ## Installation
 
 1. Install the package via composer:
+
     ```shell
     composer require Modules/Module-subscriptions
     ```
 
 2. Publish resources (migrations and config files):
+
     ```shell
     php artisan vendor:publish --provider="Modules\Subscriptions\SubscriptionServiceProvider"
     ```
 
 3. Execute migrations via the following command:
+
     ```shell
     php artisan migrate
     ```
 
 4. Done!
-
 
 ## Usage
 
@@ -90,7 +90,7 @@ use Modules\Subscriptions\Models\Plan;
 
 $plan = Plan::find(1);
 
-// Get all plan features                
+// Get all plan features
 $plan->features;
 
 // Get all plan subscriptions
@@ -178,9 +178,9 @@ There's multiple ways to determine the usage and ability of a particular feature
 
 The `canUseFeature` method returns `true` or `false` depending on multiple factors:
 
-- Feature _is enabled_.
-- Feature value isn't `0`/`false`/`NULL`.
-- Or feature has remaining uses available.
+-   Feature _is enabled_.
+-   Feature value isn't `0`/`false`/`NULL`.
+-   Or feature has remaining uses available.
 
 ```php
 $user->planSubscription('main')->canUseFeature('listings');
@@ -188,9 +188,9 @@ $user->planSubscription('main')->canUseFeature('listings');
 
 Other feature methods on the user subscription instance are:
 
-- `getFeatureUsage`: returns how many times the user has used a particular feature.
-- `getFeatureRemainings`: returns available uses for a particular feature.
-- `getFeatureValue`: returns the feature value.
+-   `getFeatureUsage`: returns how many times the user has used a particular feature.
+-   `getFeatureRemainings`: returns available uses for a particular feature.
+-   `getFeatureValue`: returns the feature value.
 
 > All methods share the same signature: e.g. `$user->planSubscription('main')->getFeatureUsage('listings');`.
 
@@ -230,8 +230,8 @@ $user->planSubscription('main')->usage()->delete();
 
 For a subscription to be considered active _one of the following must be `true`_:
 
-- Subscription has an active trial.
-- Subscription `ends_at` is in the future.
+-   Subscription has an active trial.
+-   Subscription `ends_at` is in the future.
 
 ```php
 $user->subscribedTo($planId);
@@ -284,7 +284,7 @@ $subscriptions = Subscription::byPlanId($plan_id)->get();
 
 // Get bookings of the given user
 $user = User::find(1);
-$bookingsOfSubscriber = Subscription::ofSubscriber($user)->get(); 
+$bookingsOfSubscriber = Subscription::ofSubscriber($user)->get();
 
 // Get subscriptions with trial ending in 3 days
 $subscriptions = Subscription::findEndingTrial(3)->get();
@@ -314,15 +314,13 @@ Modules\Subscriptions\Models\SubscriptionUsage;
 
 Refer to the [Changelog](CHANGELOG.md) for a full history of the project.
 
-
 ## Support
 
 The following support channels are available at your fingertips:
 
-- [Chat on Telegram](https://Module.cm/telegram)
-- [Help on Email](mailto:developers@Module.cm)
-- [Follow on Twitter](https://twitter.com/Modules)
-
+-   [Chat on Telegram](https://Module.cm/telegram)
+-   [Help on Email](mailto:developers@Module.cm)
+-   [Follow on Twitter](https://twitter.com/Modules)
 
 ## Contributing & Protocols
 
@@ -330,22 +328,19 @@ Thank you for considering contributing to this project! The contribution guide c
 
 Bug reports, feature requests, and pull requests are very welcome.
 
-- [Versioning](CONTRIBUTING.md#versioning)
-- [Pull Requests](CONTRIBUTING.md#pull-requests)
-- [Coding Standards](CONTRIBUTING.md#coding-standards)
-- [Feature Requests](CONTRIBUTING.md#feature-requests)
-- [Git Flow](CONTRIBUTING.md#git-flow)
-
+-   [Versioning](CONTRIBUTING.md#versioning)
+-   [Pull Requests](CONTRIBUTING.md#pull-requests)
+-   [Coding Standards](CONTRIBUTING.md#coding-standards)
+-   [Feature Requests](CONTRIBUTING.md#feature-requests)
+-   [Git Flow](CONTRIBUTING.md#git-flow)
 
 ## Security Vulnerabilities
 
 If you discover a security vulnerability within this project, please send an e-mail to [developers@Module.cm](help@rinvex.com). All security vulnerabilities will be promptly addressed.
 
-
 ## About Module Cameroon
 
 The community of PHP and Module developers in Cameroon, the largest gathering of developers in Cameroon.
-
 
 ## License
 
