@@ -7,11 +7,11 @@ namespace Modules\Subscription\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Modules\Subscription\Traits\HasSlug;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Subscription\Services\Period;
 use Modules\Subscription\Traits\BelongsToPlan;
+use Modules\Subscription\Traits\HasSlug;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Sluggable\SlugOptions;
@@ -33,7 +33,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property-read Plan $plan
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscription\Models\SubscriptionUsage[] $usage
- *
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature byPlanId($planId)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature ordered($direction = 'asc')
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereCreatedAt($value)
@@ -48,14 +47,31 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereSortOrder($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Feature whereValue($value)
+ * @property string $name
+ * @property int $sort_order
+ * @property string|null $created_by
+ * @property string|null $updated_by
+ * @property string|null $deleted_by
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Feature withoutTrashed()
+ * @property-read int|null $usage_count
+ * @mixin \Eloquent
  */
 class Feature extends Model implements Sortable
 {
     use BelongsToPlan;
     use HasSlug;
+    use HasUlids;
     use SoftDeletes;
     use SortableTrait;
-    use HasUlids;
 
     protected $fillable = [
         'plan_id',
@@ -96,7 +112,7 @@ class Feature extends Model implements Sortable
 
     public function getTable(): string
     {
-        return config('laravel-subscriptions.tables.features');
+        return config('subscription.tables.features');
     }
 
     protected static function boot(): void
@@ -118,7 +134,7 @@ class Feature extends Model implements Sortable
 
     public function usage(): HasMany
     {
-        return $this->hasMany(config('laravel-subscriptions.models.subscription_usage'));
+        return $this->hasMany(config('subscription.models.subscription_usage'));
     }
 
     public function getResetDate(?Carbon $dateFrom = null): Carbon

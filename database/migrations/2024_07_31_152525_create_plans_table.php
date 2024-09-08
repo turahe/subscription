@@ -27,11 +27,11 @@ return new class extends Migration
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
             $table->unsignedSmallInteger('trial_period')->default(0);
-            $table->string('trial_interval')->default(Interval::DAY->value);
+            $table->string('trial_interval')->default(Interval::Day->value);
             $table->unsignedSmallInteger('invoice_period')->default(0);
-            $table->string('invoice_interval')->default(Interval::MONTH->value);
+            $table->string('invoice_interval')->default(Interval::Month->value);
             $table->unsignedSmallInteger('grace_period')->default(0);
-            $table->string('grace_interval')->default(Interval::DAY->value);
+            $table->string('grace_interval')->default(Interval::Day->value);
             $table->unsignedTinyInteger('prorate_day')->nullable();
             $table->unsignedTinyInteger('prorate_period')->nullable();
             $table->unsignedTinyInteger('prorate_extend_due')->nullable();

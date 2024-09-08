@@ -4,9 +4,11 @@ namespace Modules\Subscription\Enums;
 
 enum Interval: string
 {
-    case YEAR = 'year';
+    case Year = 'YEAR';
 
-    case MONTH = 'month';
+    case Month = 'MONTH';
 
-    case DAY = 'day';
+    case Week = 'WEEK';
+
+    case Day = 'DAY';
 }

@@ -7,17 +7,15 @@ namespace Modules\Subscription\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use LogicException;
 use Modules\Subscription\Services\Period;
 use Modules\Subscription\Traits\BelongsToPlan;
 use Modules\Subscription\Traits\HasSlug;
-use Modules\Subscription\Traits\HasTranslations;
-use LogicException;
 use Spatie\Sluggable\SlugOptions;
 
 /**
@@ -41,7 +39,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Plan $plan
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscription\Models\SubscriptionUsage[] $usage
  * @property-read Model $subscriber
- *
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription byPlanId($planId)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription findEndedPeriod()
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription findEndedTrial()
@@ -63,12 +60,31 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereSubscriberId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Subscription whereSubscriberType($value)
+ * @property string $name
+ * @property string|null $timezone
+ * @property string|null $created_by
+ * @property string|null $updated_by
+ * @property string|null $deleted_by
+ * @method static Builder|Subscription findActive()
+ * @method static Builder|Subscription newModelQuery()
+ * @method static Builder|Subscription newQuery()
+ * @method static Builder|Subscription onlyTrashed()
+ * @method static Builder|Subscription query()
+ * @method static Builder|Subscription whereCreatedBy($value)
+ * @method static Builder|Subscription whereDeletedBy($value)
+ * @method static Builder|Subscription whereName($value)
+ * @method static Builder|Subscription whereTimezone($value)
+ * @method static Builder|Subscription whereUpdatedBy($value)
+ * @method static Builder|Subscription withTrashed()
+ * @method static Builder|Subscription withoutTrashed()
+ * @property-read int|null $usage_count
+ * @mixin \Eloquent
  */
 class Subscription extends Model
 {
     use BelongsToPlan;
-    use HasUlids;
     use HasSlug;
+    use HasUlids;
     use SoftDeletes;
 
     protected $fillable = [
@@ -112,7 +128,7 @@ class Subscription extends Model
 
     public function getTable(): string
     {
-        return config('laravel-subscriptions.tables.subscriptions');
+        return config('subscription.tables.subscriptions');
     }
 
     protected static function boot(): void
@@ -120,7 +136,7 @@ class Subscription extends Model
         parent::boot();
 
         static::creating(function (self $model): void {
-            if ( ! $model->starts_at || ! $model->ends_at) {
+            if (! $model->starts_at || ! $model->ends_at) {
                 $model->setNewPeriod();
             }
         });
@@ -145,7 +161,7 @@ class Subscription extends Model
 
     public function usage(): HasMany
     {
-        return $this->hasMany(config('laravel-subscriptions.models.subscription_usage'));
+        return $this->hasMany(config('subscription.models.subscription_usage'));
     }
 
     public function active(): bool
@@ -373,7 +389,7 @@ class Subscription extends Model
 
         // If the feature value is zero, let's return false since
         // there's no uses available. (useful to disable countable features)
-        if ( ! $usage || $usage->expired() || $featureValue === null || $featureValue === '0' || $featureValue === 'false') {
+        if (! $usage || $usage->expired() || $featureValue === null || $featureValue === '0' || $featureValue === 'false') {
             return false;
         }
 
@@ -388,7 +404,7 @@ class Subscription extends Model
     {
         $usage = $this->usage()->byFeatureSlug($featureSlug)->first();
 
-        return ( ! $usage || $usage->expired()) ? 0 : $usage->used;
+        return (! $usage || $usage->expired()) ? 0 : $usage->used;
     }
 
     /**

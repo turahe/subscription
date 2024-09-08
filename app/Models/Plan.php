@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace Modules\Subscription\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Subscription\Traits\HasSlug;
-use Modules\Subscription\Traits\HasTranslations;
+use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Sluggable\SlugOptions;
-use Spatie\EloquentSortable\Sortable;
 
 /**
  * Modules\Subscription\Models\Plan.
@@ -42,7 +41,6 @@ use Spatie\EloquentSortable\Sortable;
  * @property \Carbon\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscription\Models\Feature[] $features
  * @property-read \Illuminate\Database\Eloquent\Collection|\Modules\Subscription\Models\Subscription[] $subscriptions
- *
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan ordered($direction = 'asc')
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereActiveSubscribersLimit($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereCreatedAt($value)
@@ -66,14 +64,29 @@ use Spatie\EloquentSortable\Sortable;
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereTrialInterval($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereTrialPeriod($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\Modules\Subscription\Models\Plan whereUpdatedAt($value)
+ * @property string|null $created_by
+ * @property string|null $updated_by
+ * @property string|null $deleted_by
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan whereCreatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan whereDeletedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan whereUpdatedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Plan withoutTrashed()
+ * @property-read int|null $features_count
+ * @property-read int|null $subscriptions_count
+ * @mixin \Eloquent
  */
 class Plan extends Model implements Sortable
 {
     use HasFactory;
     use HasSlug;
+    use HasUlids;
     use SoftDeletes;
     use SortableTrait;
-    use HasUlids;
 
     protected $fillable = [
         'slug',
@@ -124,7 +137,7 @@ class Plan extends Model implements Sortable
 
     public function getTable(): string
     {
-        return config('laravel-subscriptions.tables.plans');
+        return config('subscription.tables.plans');
     }
 
     protected static function boot(): void
@@ -147,12 +160,12 @@ class Plan extends Model implements Sortable
 
     public function features(): HasMany
     {
-        return $this->hasMany(config('laravel-subscriptions.models.feature'));
+        return $this->hasMany(config('subscription.models.feature'));
     }
 
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(config('laravel-subscriptions.models.subscription'));
+        return $this->hasMany(config('subscription.models.subscription'));
     }
 
     public function isFree(): bool

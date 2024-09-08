@@ -28,7 +28,7 @@ final class Period
 
         if (empty($start)) {
             $this->start = Carbon::now();
-        } elseif ( ! $start instanceof Carbon) {
+        } elseif (! $start instanceof Carbon) {
             $this->start = new Carbon($start);
         } else {
             $this->start = $start;

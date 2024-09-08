@@ -1,6 +1,7 @@
 <?php
 
 namespace Modules\Subscription\Events;
+
 class SubscriptionUpdated
 {
     /**
