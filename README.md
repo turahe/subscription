@@ -13,13 +13,13 @@ It's simple architecture, accompanied by powerful underlying to afford solid pla
 1. Install the package via composer:
 
     ```shell
-    composer require Modules/Module-subscriptions
+    composer require turahe/subscription
     ```
 
 2. Publish resources (migrations and config files):
 
     ```shell
-    php artisan vendor:publish --provider="Modules\Subscriptions\SubscriptionServiceProvider"
+    php artisan vendor:publish --provider="Turahe\Subscription\SubscriptionServiceProvider"
     ```
 
 3. Execute migrations via the following command:
@@ -39,7 +39,7 @@ It's simple architecture, accompanied by powerful underlying to afford solid pla
 ```php
 namespace App\Models;
 
-use Modules\Subscriptions\Traits\HasPlanSubscriptions;
+use Turahe\Subscription\Traits\HasPlanSubscriptions;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -55,9 +55,9 @@ That's it, we only have to use that trait in our User model! Now your users may 
 ### Create a Plan
 
 ```php
-use Modules\Subscriptions\Models\Plan;
-use Modules\Subscriptions\Models\Feature;
-use Modules\Subscriptions\Interval;
+use Turahe\Subscription\Models\Plan;
+use Turahe\Subscription\Models\Feature;
+use Turahe\Subscription\Interval;
 
 $plan = Plan::create([
     'name' => 'Pro',
@@ -86,7 +86,7 @@ $plan->features()->saveMany([
 You can query the plan for further details, using the intuitive API as follows:
 
 ```php
-use Modules\Subscriptions\Models\Plan;
+use Turahe\Subscription\Models\Plan;
 
 $plan = Plan::find(1);
 
@@ -113,8 +113,8 @@ Both `$plan->features` and `$plan->subscriptions` are collections, driven from r
 Say you want to show the value of the feature _pictures_per_listing_ from above. You can do so in many ways:
 
 ```php
-use Modules\Subscriptions\Models\Feature;
-use Modules\Subscriptions\Models\Subscription;
+use Turahe\Subscription\Models\Feature;
+use Turahe\Subscription\Models\Subscription;
 
 // Use the plan instance to get feature's value
 $amountOfPictures = $plan->getFeatureBySlug('pictures_per_listing')->value;
@@ -131,7 +131,7 @@ $amountOfPictures = Subscription::find(1)->getFeatureValue('pictures_per_listing
 You can subscribe a user to a plan by using the `newSubscription()` function available in the `HasPlanSubscriptions` trait. First, retrieve an instance of your subscriber model, which typically will be your user model and an instance of the plan your user is subscribing to. Once you have retrieved the model instance, you may use the `newSubscription` method to create the model's subscription.
 
 ```php
-use Modules\Auth\Models\User;use Modules\Subscriptions\Models\Plan;
+use Modules\Auth\Models\User;use Turahe\Subscription\Models\Plan;
 
 $user = User::find(1);
 $plan = Plan::find(1);
@@ -146,8 +146,8 @@ The first argument passed to `newSubscription` method should be the title of the
 You can change subscription plan easily as follows:
 
 ```php
-use Modules\Subscriptions\Models\Plan;
-use Modules\Subscriptions\Models\Subscription;
+use Turahe\Subscription\Models\Plan;
+use Turahe\Subscription\Models\Subscription;
 
 $plan = Plan::find(2);
 $subscription = Subscription::find(1);
@@ -163,7 +163,7 @@ If both plans (current and new plan) have the same billing frequency (e.g., `inv
 Plan features are great for fine-tuning subscriptions, you can top-up certain feature for X times of usage, so users may then use it only for that amount. Features also have the ability to be resettable and then it's usage could be expired too. See the following examples:
 
 ```php
-use Modules\Subscriptions\Models\Feature;
+use Turahe\Subscription\Models\Feature;
 
 // Find plan feature
 $feature = Feature::where('name', 'listing_duration_days')->first();
@@ -277,7 +277,7 @@ $user->planSubscription('main')->cancel(true);
 #### Subscription Model
 
 ```php
-use Modules\Auth\Models\User;use Modules\Subscriptions\Models\Subscription;
+use Modules\Auth\Models\User;use Turahe\Subscription\Models\Subscription;
 
 // Get subscriptions by plan
 $subscriptions = Subscription::byPlanId($plan_id)->get();
@@ -304,10 +304,10 @@ $subscriptions = Subscription::findEndedPeriod()->get();
 **Module Subscriptions** uses 4 models:
 
 ```php
-Modules\Subscriptions\Models\Plan;
-Modules\Subscriptions\Models\Feature;
-Modules\Subscriptions\Models\Subscription;
-Modules\Subscriptions\Models\SubscriptionUsage;
+Turahe\Subscription\Models\Plan;
+Turahe\Subscription\Models\Feature;
+Turahe\Subscription\Models\Subscription;
+Turahe\Subscription\Models\SubscriptionUsage;
 ```
 
 ## Changelog

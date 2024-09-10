@@ -1,5 +1,5 @@
 {
-    "name": "turahe/site-subscription",
+    "name": "turahe/subscription",
     "description": "",
     "authors": [
         {
@@ -10,21 +10,28 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Modules\\Subscription\\Providers\\SubscriptionServiceProvider"
+                "Turahe\\Subscription\\Providers\\SubscriptionServiceProvider"
             ],
             "aliases": {}
         }
     },
     "autoload": {
         "psr-4": {
-            "Modules\\Subscription\\": "app/",
-            "Modules\\Subscription\\Database\\Factories\\": "database/factories/",
-            "Modules\\Subscription\\Database\\Seeders\\": "database/seeders/"
+            "Turahe\\Subscription\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Modules\\Subscription\\Tests\\": "tests/"
+            "Turahe\\Subscription\\Tests\\": "tests/"
         }
+    },
+    "require": {
+        "turahe/ledger": "^1.0",
+        "spatie/laravel-sluggable": "^3.6",
+        "spatie/eloquent-sortable": "^4.4"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.17",
+        "orchestra/testbench": "^9.4"
     }
 }
