@@ -1,4 +1,4 @@
-# Module Subscriptions
+# Subscription
 
 **Module Subscriptions** is a flexible plans and subscription management system for Module, with the required tools to run your SAAS like services efficiently.
 It's simple architecture, accompanied by powerful underlying to afford solid platform for your business.
