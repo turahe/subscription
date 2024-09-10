@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Turahe\Subscription\Models;
 
+use ALajusticia\Expirable\Traits\Expirable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -17,81 +18,23 @@ use Spatie\Sluggable\SlugOptions;
 use Turahe\Subscription\Services\Period;
 use Turahe\Subscription\Traits\BelongsToPlan;
 use Turahe\Subscription\Traits\HasSlug;
+use Turahe\UserStamps\Concerns\HasUserStamps;
 
-/**
- * Turahe\Subscription\Models\Subscription.
- *
- * @property int $id
- * @property int $subscriber_id
- * @property string $subscriber_type
- * @property int $plan_id
- * @property string $slug
- * @property array $title
- * @property array $description
- * @property Carbon|null $trial_ends_at
- * @property Carbon|null $starts_at
- * @property Carbon|null $ends_at
- * @property Carbon|null $cancels_at
- * @property Carbon|null $canceled_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property-read Plan $plan
- * @property-read \Illuminate\Database\Eloquent\Collection|\Turahe\Subscription\Models\SubscriptionUsage[] $usage
- * @property-read Model $subscriber
- *
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription byPlanId($planId)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription findEndedPeriod()
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription findEndedTrial()
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription findEndingPeriod($dayRange = 3)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription findEndingTrial($dayRange = 3)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription ofSubscriber(\Illuminate\Database\Eloquent\Model $subscriber)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereCanceledAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereCancelsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereEndsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription wherePlanId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereStartsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereTrialEndsAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereSubscriberId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Subscription whereSubscriberType($value)
- *
- * @property string $name
- * @property string|null $timezone
- * @property string|null $created_by
- * @property string|null $updated_by
- * @property string|null $deleted_by
- *
- * @method static Builder|Subscription findActive()
- * @method static Builder|Subscription newModelQuery()
- * @method static Builder|Subscription newQuery()
- * @method static Builder|Subscription onlyTrashed()
- * @method static Builder|Subscription query()
- * @method static Builder|Subscription whereCreatedBy($value)
- * @method static Builder|Subscription whereDeletedBy($value)
- * @method static Builder|Subscription whereName($value)
- * @method static Builder|Subscription whereTimezone($value)
- * @method static Builder|Subscription whereUpdatedBy($value)
- * @method static Builder|Subscription withTrashed()
- * @method static Builder|Subscription withoutTrashed()
- *
- * @property-read int|null $usage_count
- *
- * @mixin \Eloquent
- */
 class Subscription extends Model
 {
     use BelongsToPlan;
     use HasSlug;
     use HasUlids;
     use SoftDeletes;
+    use HasUserStamps;
+    use Expirable;
+    const EXPIRES_AT = 'ends_at';
 
+
+
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'subscriber_id',
         'subscriber_type',
@@ -106,8 +49,14 @@ class Subscription extends Model
         'canceled_at',
     ];
 
+    /**
+     * @var string
+     */
     protected $dateFormat = 'U';
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'subscriber_id' => 'integer',
         'subscriber_type' => 'string',
@@ -131,11 +80,17 @@ class Subscription extends Model
         'description',
     ];
 
+    /**
+     * @return string
+     */
     public function getTable(): string
     {
         return config('subscription.tables.subscriptions');
     }
 
+    /**
+     * @return void
+     */
     protected static function boot(): void
     {
         parent::boot();
@@ -151,6 +106,9 @@ class Subscription extends Model
         });
     }
 
+    /**
+     * @return SlugOptions
+     */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -159,41 +117,66 @@ class Subscription extends Model
             ->saveSlugsTo('slug');
     }
 
+    /**
+     * @return MorphTo
+     */
     public function subscriber(): MorphTo
     {
         return $this->morphTo('subscriber', 'subscriber_type', 'subscriber_id', 'id');
     }
 
+    /**
+     * @return HasMany
+     */
     public function usage(): HasMany
     {
         return $this->hasMany(config('subscription.models.subscription_usage'));
     }
 
+    /**
+     * @return bool
+     */
     public function active(): bool
     {
         return ! $this->ended() || $this->onTrial();
     }
 
+    /**
+     * @return bool
+     */
     public function inactive(): bool
     {
         return ! $this->active();
     }
 
+    /**
+     * @return bool
+     */
     public function onTrial(): bool
     {
         return $this->trial_ends_at && Carbon::now()->lt($this->trial_ends_at);
     }
 
+    /**
+     * @return bool
+     */
     public function canceled(): bool
     {
         return $this->canceled_at && Carbon::now()->gte($this->canceled_at);
     }
 
+    /**
+     * @return bool
+     */
     public function ended(): bool
     {
         return $this->ends_at && Carbon::now()->gte($this->ends_at);
     }
 
+    /**
+     * @param bool $immediately
+     * @return $this
+     */
     public function cancel(bool $immediately = false): self
     {
         $this->canceled_at = Carbon::now();
@@ -207,6 +190,10 @@ class Subscription extends Model
         return $this;
     }
 
+    /**
+     * @param Plan $plan
+     * @return $this
+     */
     public function changePlan(Plan $plan): self
     {
         // If plans does not have the same billing frequency
@@ -335,6 +322,12 @@ class Subscription extends Model
         return $this;
     }
 
+    /**
+     * @param string $featureSlug
+     * @param int $uses
+     * @param bool $incremental
+     * @return SubscriptionUsage
+     */
     public function recordFeatureUsage(string $featureSlug, int $uses = 1, bool $incremental = true): SubscriptionUsage
     {
         $feature = $this->plan->features()->where('slug', $featureSlug)->first();
@@ -365,6 +358,11 @@ class Subscription extends Model
         return $usage;
     }
 
+    /**
+     * @param string $featureSlug
+     * @param int $uses
+     * @return SubscriptionUsage|null
+     */
     public function reduceFeatureUsage(string $featureSlug, int $uses = 1): ?SubscriptionUsage
     {
         $usage = $this->usage()->byFeatureSlug($featureSlug)->first();
@@ -420,6 +418,10 @@ class Subscription extends Model
         return $this->getFeatureValue($featureSlug) - $this->getFeatureUsage($featureSlug);
     }
 
+    /**
+     * @param string $featureSlug
+     * @return string|null
+     */
     public function getFeatureValue(string $featureSlug): ?string
     {
         $feature = $this->plan->features()->where('slug', $featureSlug)->first();

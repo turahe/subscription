@@ -131,7 +131,7 @@ $amountOfPictures = Subscription::find(1)->getFeatureValue('pictures_per_listing
 You can subscribe a user to a plan by using the `newSubscription()` function available in the `HasPlanSubscriptions` trait. First, retrieve an instance of your subscriber model, which typically will be your user model and an instance of the plan your user is subscribing to. Once you have retrieved the model instance, you may use the `newSubscription` method to create the model's subscription.
 
 ```php
-use Modules\Auth\Models\User;use Turahe\Subscription\Models\Plan;
+use Turahe\Auth\Models\User;use Turahe\Subscription\Models\Plan;
 
 $user = User::find(1);
 $plan = Plan::find(1);
@@ -277,7 +277,7 @@ $user->planSubscription('main')->cancel(true);
 #### Subscription Model
 
 ```php
-use Modules\Auth\Models\User;use Turahe\Subscription\Models\Subscription;
+use Turahe\Auth\Models\User;use Turahe\Subscription\Models\Subscription;
 
 // Get subscriptions by plan
 $subscriptions = Subscription::byPlanId($plan_id)->get();
@@ -320,7 +320,7 @@ The following support channels are available at your fingertips:
 
 -   [Chat on Telegram](https://Module.cm/telegram)
 -   [Help on Email](mailto:developers@Module.cm)
--   [Follow on Twitter](https://twitter.com/Modules)
+-   [Follow on Twitter](https://twitter.com/Turahe)
 
 ## Contributing & Protocols
 

@@ -13,78 +13,8 @@ use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Sluggable\SlugOptions;
 use Turahe\Subscription\Traits\HasSlug;
+use Turahe\UserStamps\Concerns\HasUserStamps;
 
-/**
- * Turahe\Subscription\Models\Plan.
- *
- * @property int $id
- * @property string $slug
- * @property array $name
- * @property array $description
- * @property bool $is_active
- * @property float $price
- * @property float $signup_fee
- * @property string $currency
- * @property int $trial_period
- * @property string $trial_interval
- * @property int $invoice_period
- * @property string $invoice_interval
- * @property int $grace_period
- * @property string $grace_interval
- * @property int $prorate_day
- * @property int $prorate_period
- * @property int $prorate_extend_due
- * @property int $active_subscribers_limit
- * @property int $sort_order
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
- * @property \Carbon\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\Turahe\Subscription\Models\Feature[] $features
- * @property-read \Illuminate\Database\Eloquent\Collection|\Turahe\Subscription\Models\Subscription[] $subscriptions
- *
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan ordered($direction = 'asc')
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereActiveSubscribersLimit($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereGraceInterval($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereGracePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereInvoiceInterval($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereInvoicePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereIsActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan wherePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereProrateDay($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereProrateExtendDue($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereProratePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereSignupFee($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereTrialInterval($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereTrialPeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\Plan whereUpdatedAt($value)
- *
- * @property string|null $created_by
- * @property string|null $updated_by
- * @property string|null $deleted_by
- *
- * @method static \Illuminate\Database\Eloquent\Builder|Plan newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Plan newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Plan onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Plan query()
- * @method static \Illuminate\Database\Eloquent\Builder|Plan whereCreatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Plan whereDeletedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Plan whereUpdatedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Plan withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Plan withoutTrashed()
- *
- * @property-read int|null $features_count
- * @property-read int|null $subscriptions_count
- *
- * @mixin \Eloquent
- */
 class Plan extends Model implements Sortable
 {
     use HasFactory;
@@ -92,7 +22,11 @@ class Plan extends Model implements Sortable
     use HasUlids;
     use SoftDeletes;
     use SortableTrait;
+    use HasUserStamps;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'slug',
         'name',
@@ -114,6 +48,9 @@ class Plan extends Model implements Sortable
         'sort_order',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'slug' => 'string',
         'is_active' => 'boolean',
@@ -134,17 +71,29 @@ class Plan extends Model implements Sortable
         'deleted_at' => 'datetime',
     ];
 
+    /**
+     * @var string
+     */
     protected $dateFormat = 'U';
 
+    /**
+     * @var array|string[]
+     */
     public array $sortable = [
         'order_column_name' => 'record_ordering',
     ];
 
+    /**
+     * @return string
+     */
     public function getTable(): string
     {
         return config('subscription.tables.plans');
     }
 
+    /**
+     * @return void
+     */
     protected static function boot(): void
     {
         parent::boot();
@@ -155,6 +104,9 @@ class Plan extends Model implements Sortable
         });
     }
 
+    /**
+     * @return SlugOptions
+     */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -163,36 +115,58 @@ class Plan extends Model implements Sortable
             ->saveSlugsTo('slug');
     }
 
+    /**
+     * @return HasMany
+     */
     public function features(): HasMany
     {
         return $this->hasMany(config('subscription.models.feature'));
     }
 
+    /**
+     * @return HasMany
+     */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(config('subscription.models.subscription'));
     }
 
+    /**
+     * @return bool
+     */
     public function isFree(): bool
     {
         return $this->price <= 0.00;
     }
 
+    /**
+     * @return bool
+     */
     public function hasTrial(): bool
     {
         return $this->trial_period && $this->trial_interval;
     }
 
+    /**
+     * @return bool
+     */
     public function hasGrace(): bool
     {
         return $this->grace_period && $this->grace_interval;
     }
 
+    /**
+     * @param string $featureSlug
+     * @return Feature|null
+     */
     public function getFeatureBySlug(string $featureSlug): ?Feature
     {
         return $this->features()->where('slug', $featureSlug)->first();
     }
 
+    /**
+     * @return $this
+     */
     public function activate(): self
     {
         $this->update(['is_active' => true]);
@@ -200,6 +174,9 @@ class Plan extends Model implements Sortable
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function deactivate(): self
     {
         $this->update(['is_active' => false]);

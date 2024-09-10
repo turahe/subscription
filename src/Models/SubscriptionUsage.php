@@ -4,60 +4,27 @@ declare(strict_types=1);
 
 namespace Turahe\Subscription\Models;
 
+use ALajusticia\Expirable\Traits\Expirable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Turahe\UserStamps\Concerns\HasUserStamps;
 
-/**
- * Turahe\Subscription\Models\SubscriptionUsage.
- *
- * @property int $id
- * @property int $subscription_id
- * @property int $feature_id
- * @property int $used
- * @property Carbon|null $valid_until
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property-read Feature $feature
- * @property-read Subscription $subscription
- *
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage byFeatureSlug($featureSlug)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage whereFeatureId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage whereSubscriptionId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage whereUsed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Turahe\Subscription\Models\SubscriptionUsage whereValidUntil($value)
- *
- * @property string|null $timezone
- * @property string|null $created_by
- * @property string|null $updated_by
- * @property string|null $deleted_by
- *
- * @method static Builder|SubscriptionUsage newModelQuery()
- * @method static Builder|SubscriptionUsage newQuery()
- * @method static Builder|SubscriptionUsage onlyTrashed()
- * @method static Builder|SubscriptionUsage query()
- * @method static Builder|SubscriptionUsage whereCreatedBy($value)
- * @method static Builder|SubscriptionUsage whereDeletedBy($value)
- * @method static Builder|SubscriptionUsage whereTimezone($value)
- * @method static Builder|SubscriptionUsage whereUpdatedBy($value)
- * @method static Builder|SubscriptionUsage withTrashed()
- * @method static Builder|SubscriptionUsage withoutTrashed()
- *
- * @mixin \Eloquent
- */
 class SubscriptionUsage extends Model
 {
     use HasUlids;
     use SoftDeletes;
+    use HasUserStamps;
+    use Expirable;
 
+    const EXPIRES_AT = 'valid_until';
+
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'subscription_id',
         'feature_id',
@@ -65,8 +32,14 @@ class SubscriptionUsage extends Model
         'valid_until',
     ];
 
+    /**
+     * @var string
+     */
     protected $dateFormat = 'U';
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'subscription_id' => 'integer',
         'feature_id' => 'integer',
@@ -75,21 +48,35 @@ class SubscriptionUsage extends Model
         'deleted_at' => 'datetime',
     ];
 
+    /**
+     * @return string
+     */
     public function getTable(): string
     {
         return config('subscription.tables.subscription_usage');
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function feature(): BelongsTo
     {
         return $this->belongsTo(config('subscription.models.feature'), 'feature_id', 'id', 'feature');
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(config('subscription.models.subscription'), 'subscription_id', 'id', 'subscription');
     }
 
+    /**
+     * @param Builder $builder
+     * @param string $featureSlug
+     * @return Builder
+     */
     public function scopeByFeatureSlug(Builder $builder, string $featureSlug): Builder
     {
         $model = config('subscription.models.feature', Feature::class);
@@ -98,6 +85,9 @@ class SubscriptionUsage extends Model
         return $builder->where('feature_id', $feature ? $feature->getKey() : null);
     }
 
+    /**
+     * @return bool
+     */
     public function expired(): bool
     {
         if (! $this->valid_until) {

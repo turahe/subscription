@@ -28,9 +28,9 @@ return [
     */
 
     'models' => [
-        'plan' => \Modules\Subscription\Models\Plan::class,
-        'feature' => \Modules\Subscription\Models\Feature::class,
-        'subscription' => \Modules\Subscription\Models\Subscription::class,
-        'subscription_usage' => \Modules\Subscription\Models\SubscriptionUsage::class,
+        'plan' => \Turahe\Subscription\Models\Plan::class,
+        'feature' => \Turahe\Subscription\Models\Feature::class,
+        'subscription' => \Turahe\Subscription\Models\Subscription::class,
+        'subscription_usage' => \Turahe\Subscription\Models\SubscriptionUsage::class,
     ],
 ];
