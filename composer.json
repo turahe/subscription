@@ -10,7 +10,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Turahe\\Subscription\\Providers\\SubscriptionServiceProvider"
+                "Turahe\\Subscription\\SubscriptionServiceProvider"
             ],
             "aliases": {}
         }
