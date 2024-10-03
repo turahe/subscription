@@ -23,14 +23,13 @@ use Turahe\UserStamps\Concerns\HasUserStamps;
 class Subscription extends Model
 {
     use BelongsToPlan;
+    use Expirable;
     use HasSlug;
     use HasUlids;
-    use SoftDeletes;
     use HasUserStamps;
-    use Expirable;
+    use SoftDeletes;
+
     const EXPIRES_AT = 'ends_at';
-
-
 
     /**
      * @var string[]
@@ -80,17 +79,11 @@ class Subscription extends Model
         'description',
     ];
 
-    /**
-     * @return string
-     */
     public function getTable(): string
     {
         return config('subscription.tables.subscriptions');
     }
 
-    /**
-     * @return void
-     */
     protected static function boot(): void
     {
         parent::boot();
@@ -106,9 +99,6 @@ class Subscription extends Model
         });
     }
 
-    /**
-     * @return SlugOptions
-     */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -117,64 +107,42 @@ class Subscription extends Model
             ->saveSlugsTo('slug');
     }
 
-    /**
-     * @return MorphTo
-     */
     public function subscriber(): MorphTo
     {
         return $this->morphTo('subscriber', 'subscriber_type', 'subscriber_id', 'id');
     }
 
-    /**
-     * @return HasMany
-     */
     public function usage(): HasMany
     {
         return $this->hasMany(config('subscription.models.subscription_usage'));
     }
 
-    /**
-     * @return bool
-     */
     public function active(): bool
     {
         return ! $this->ended() || $this->onTrial();
     }
 
-    /**
-     * @return bool
-     */
     public function inactive(): bool
     {
         return ! $this->active();
     }
 
-    /**
-     * @return bool
-     */
     public function onTrial(): bool
     {
         return $this->trial_ends_at && Carbon::now()->lt($this->trial_ends_at);
     }
 
-    /**
-     * @return bool
-     */
     public function canceled(): bool
     {
         return $this->canceled_at && Carbon::now()->gte($this->canceled_at);
     }
 
-    /**
-     * @return bool
-     */
     public function ended(): bool
     {
         return $this->ends_at && Carbon::now()->gte($this->ends_at);
     }
 
     /**
-     * @param bool $immediately
      * @return $this
      */
     public function cancel(bool $immediately = false): self
@@ -191,7 +159,6 @@ class Subscription extends Model
     }
 
     /**
-     * @param Plan $plan
      * @return $this
      */
     public function changePlan(Plan $plan): self
@@ -322,12 +289,6 @@ class Subscription extends Model
         return $this;
     }
 
-    /**
-     * @param string $featureSlug
-     * @param int $uses
-     * @param bool $incremental
-     * @return SubscriptionUsage
-     */
     public function recordFeatureUsage(string $featureSlug, int $uses = 1, bool $incremental = true): SubscriptionUsage
     {
         $feature = $this->plan->features()->where('slug', $featureSlug)->first();
@@ -358,11 +319,6 @@ class Subscription extends Model
         return $usage;
     }
 
-    /**
-     * @param string $featureSlug
-     * @param int $uses
-     * @return SubscriptionUsage|null
-     */
     public function reduceFeatureUsage(string $featureSlug, int $uses = 1): ?SubscriptionUsage
     {
         $usage = $this->usage()->byFeatureSlug($featureSlug)->first();
@@ -418,10 +374,6 @@ class Subscription extends Model
         return $this->getFeatureValue($featureSlug) - $this->getFeatureUsage($featureSlug);
     }
 
-    /**
-     * @param string $featureSlug
-     * @return string|null
-     */
     public function getFeatureValue(string $featureSlug): ?string
     {
         $feature = $this->plan->features()->where('slug', $featureSlug)->first();

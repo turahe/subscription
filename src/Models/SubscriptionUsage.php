@@ -15,10 +15,10 @@ use Turahe\UserStamps\Concerns\HasUserStamps;
 
 class SubscriptionUsage extends Model
 {
-    use HasUlids;
-    use SoftDeletes;
-    use HasUserStamps;
     use Expirable;
+    use HasUlids;
+    use HasUserStamps;
+    use SoftDeletes;
 
     const EXPIRES_AT = 'valid_until';
 
@@ -48,35 +48,21 @@ class SubscriptionUsage extends Model
         'deleted_at' => 'datetime',
     ];
 
-    /**
-     * @return string
-     */
     public function getTable(): string
     {
         return config('subscription.tables.subscription_usage');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function feature(): BelongsTo
     {
         return $this->belongsTo(config('subscription.models.feature'), 'feature_id', 'id', 'feature');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(config('subscription.models.subscription'), 'subscription_id', 'id', 'subscription');
     }
 
-    /**
-     * @param Builder $builder
-     * @param string $featureSlug
-     * @return Builder
-     */
     public function scopeByFeatureSlug(Builder $builder, string $featureSlug): Builder
     {
         $model = config('subscription.models.feature', Feature::class);
@@ -85,9 +71,6 @@ class SubscriptionUsage extends Model
         return $builder->where('feature_id', $feature ? $feature->getKey() : null);
     }
 
-    /**
-     * @return bool
-     */
     public function expired(): bool
     {
         if (! $this->valid_until) {

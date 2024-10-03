@@ -36,7 +36,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('prorate_period')->nullable();
             $table->unsignedTinyInteger('prorate_extend_due')->nullable();
             $table->unsignedSmallInteger('active_subscribers_limit')->nullable();
-            $table->unsignedSmallInteger('sort_order')->default(0);
+            $table->unsignedSmallInteger('record_ordering')->default(0);
 
             $table->foreignUlid('created_by')
                 ->index()

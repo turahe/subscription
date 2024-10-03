@@ -3,32 +3,68 @@
 namespace Turahe\Subscription\Tests;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Config;
 use Turahe\Subscription\Tests\Models\User;
 
 class TestCase extends \Orchestra\Testbench\TestCase
 {
+    use RefreshDatabase;
+    use WithFaker;
+
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->setUpDatabase();
+        $this->loadMigrationsFrom(__DIR__.'./../database/migrations');
     }
 
     protected function getPackageProviders($app)
     {
         return [
             \Turahe\Subscription\SubscriptionServiceProvider::class,
+            \Spatie\EloquentSortable\EloquentSortableServiceProvider::class,
         ];
     }
-
 
     /**
      * @param  \Illuminate\Foundation\Application  $app
      */
     protected function getEnvironmentSetUp($app)
     {
+        $app['config']->set('subby', [
+            'main_subscription_tag' => 'main',
+            'fallback_plan_tag' => null,
+            // Database Tables
+            'tables' => [
+                'plans' => 'plans',
+                'plan_combinations' => 'plan_combinations',
+                'plan_features' => 'plan_features',
+                'plan_subscriptions' => 'plan_subscriptions',
+                'plan_subscription_features' => 'plan_subscription_features',
+                'plan_subscription_schedules' => 'plan_subscription_schedules',
+                'plan_subscription_usage' => 'plan_subscription_usage',
+            ],
+            // Models
+            'models' => [
+                'plan' => \Turahe\Subscription\Models\Plan::class,
+                //                'plan_combination' => \Turahe\Subscription\Models\PlanCombination::class,
+                'plan_feature' => \Turahe\Subscription\Models\Feature::class,
+                'plan_subscription' => \Turahe\Subscription\Models\Subscription::class,
+                //                'plan_subscription_feature' => \Turahe\Subscription\Models\PlanSubscriptionFeature::class,
+                //                'plan_subscription_schedule' => \Turahe\Subscription\Models\PlanSubscriptionSchedule::class,
+                'plan_subscription_usage' => \Turahe\Subscription\Models\SubscriptionUsage::class,
+            ],
+            'services' => [
+                'payment_methods' => [
+                    //                    'success' => \Turahe\Subscription\Tests\Services\PaymentMethods\SucceededPaymentMethod::class,
+                    //                    'fail' => \Turahe\Subscription\Tests\Services\PaymentMethods\FailedPaymentMethod::class
+                ],
+            ],
+        ]);
+
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
             'driver' => 'sqlite',
@@ -48,6 +84,12 @@ class TestCase extends \Orchestra\Testbench\TestCase
             $table->string('custom_column_sort');
             $table->integer('record_ordering');
         });
-    }
 
+        $this->app['db']->connection()->getSchemaBuilder()->create('users', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamps();
+        });
+    }
 }

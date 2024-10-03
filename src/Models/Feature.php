@@ -22,9 +22,9 @@ class Feature extends Model implements Sortable
     use BelongsToPlan;
     use HasSlug;
     use HasUlids;
+    use HasUserStamps;
     use SoftDeletes;
     use SortableTrait;
-    use HasUserStamps;
 
     /**
      * @var string[]
@@ -75,17 +75,11 @@ class Feature extends Model implements Sortable
         'order_column_name' => 'record_ordering',
     ];
 
-    /**
-     * @return string
-     */
     public function getTable(): string
     {
         return config('subscription.tables.features');
     }
 
-    /**
-     * @return void
-     */
     protected static function boot(): void
     {
         parent::boot();
@@ -95,9 +89,6 @@ class Feature extends Model implements Sortable
         });
     }
 
-    /**
-     * @return SlugOptions
-     */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -106,18 +97,11 @@ class Feature extends Model implements Sortable
             ->saveSlugsTo('slug');
     }
 
-    /**
-     * @return HasMany
-     */
     public function usage(): HasMany
     {
         return $this->hasMany(config('subscription.models.subscription_usage'));
     }
 
-    /**
-     * @param Carbon|null $dateFrom
-     * @return Carbon
-     */
     public function getResetDate(?Carbon $dateFrom = null): Carbon
     {
         $period = new Period($this->resettable_interval, $this->resettable_period, $dateFrom ?? Carbon::now());

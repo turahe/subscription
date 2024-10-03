@@ -20,9 +20,9 @@ class Plan extends Model implements Sortable
     use HasFactory;
     use HasSlug;
     use HasUlids;
+    use HasUserStamps;
     use SoftDeletes;
     use SortableTrait;
-    use HasUserStamps;
 
     /**
      * @var string[]
@@ -45,7 +45,7 @@ class Plan extends Model implements Sortable
         'prorate_period',
         'prorate_extend_due',
         'active_subscribers_limit',
-        'sort_order',
+        'record_ordering',
     ];
 
     /**
@@ -67,7 +67,7 @@ class Plan extends Model implements Sortable
         'prorate_period' => 'integer',
         'prorate_extend_due' => 'integer',
         'active_subscribers_limit' => 'integer',
-        'sort_order' => 'integer',
+        'record_ordering' => 'integer',
         'deleted_at' => 'datetime',
     ];
 
@@ -81,19 +81,14 @@ class Plan extends Model implements Sortable
      */
     public array $sortable = [
         'order_column_name' => 'record_ordering',
+        'sort_when_creating' => true,
     ];
 
-    /**
-     * @return string
-     */
     public function getTable(): string
     {
         return config('subscription.tables.plans');
     }
 
-    /**
-     * @return void
-     */
     protected static function boot(): void
     {
         parent::boot();
@@ -104,9 +99,6 @@ class Plan extends Model implements Sortable
         });
     }
 
-    /**
-     * @return SlugOptions
-     */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -115,50 +107,31 @@ class Plan extends Model implements Sortable
             ->saveSlugsTo('slug');
     }
 
-    /**
-     * @return HasMany
-     */
     public function features(): HasMany
     {
         return $this->hasMany(config('subscription.models.feature'));
     }
 
-    /**
-     * @return HasMany
-     */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(config('subscription.models.subscription'));
     }
 
-    /**
-     * @return bool
-     */
     public function isFree(): bool
     {
         return $this->price <= 0.00;
     }
 
-    /**
-     * @return bool
-     */
     public function hasTrial(): bool
     {
         return $this->trial_period && $this->trial_interval;
     }
 
-    /**
-     * @return bool
-     */
     public function hasGrace(): bool
     {
         return $this->grace_period && $this->grace_interval;
     }
 
-    /**
-     * @param string $featureSlug
-     * @return Feature|null
-     */
     public function getFeatureBySlug(string $featureSlug): ?Feature
     {
         return $this->features()->where('slug', $featureSlug)->first();
