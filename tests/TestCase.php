@@ -50,17 +50,17 @@ class TestCase extends \Orchestra\Testbench\TestCase
             // Models
             'models' => [
                 'plan' => \Turahe\Subscription\Models\Plan::class,
-                //                'plan_combination' => \Turahe\Subscription\Models\PlanCombination::class,
-                'plan_feature' => \Turahe\Subscription\Models\Feature::class,
-                'plan_subscription' => \Turahe\Subscription\Models\Subscription::class,
-                //                'plan_subscription_feature' => \Turahe\Subscription\Models\PlanSubscriptionFeature::class,
-                //                'plan_subscription_schedule' => \Turahe\Subscription\Models\PlanSubscriptionSchedule::class,
-                'plan_subscription_usage' => \Turahe\Subscription\Models\SubscriptionUsage::class,
+                //                'plan_combination' => \Turahe\PlanSubscription\Models\PlanCombination::class,
+                'plan_feature' => \Turahe\Subscription\Models\PlanFeature::class,
+                'plan_subscription' => \Turahe\Subscription\Models\PlanSubscription::class,
+                //                'plan_subscription_feature' => \Turahe\PlanSubscription\Models\PlanSubscriptionFeature::class,
+                //                'plan_subscription_schedule' => \Turahe\PlanSubscription\Models\PlanSubscriptionSchedule::class,
+                'plan_subscription_usage' => \Turahe\Subscription\Models\PlanSubscriptionUsage::class,
             ],
             'services' => [
                 'payment_methods' => [
-                    //                    'success' => \Turahe\Subscription\Tests\Services\PaymentMethods\SucceededPaymentMethod::class,
-                    //                    'fail' => \Turahe\Subscription\Tests\Services\PaymentMethods\FailedPaymentMethod::class
+                    //                    'success' => \Turahe\PlanSubscription\Tests\Services\PaymentMethods\SucceededPaymentMethod::class,
+                    //                    'fail' => \Turahe\PlanSubscription\Tests\Services\PaymentMethods\FailedPaymentMethod::class
                 ],
             ],
         ]);

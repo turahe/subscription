@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Turahe\Subscription\Models\Plan;
-use Turahe\Subscription\Models\Subscription;
+use Turahe\Subscription\Models\PlanSubscription;
 use Turahe\Subscription\Services\Period;
 
 trait HasPlanSubscriptions
@@ -38,7 +38,7 @@ trait HasPlanSubscriptions
         return $this->planSubscriptions->reject->inactive();
     }
 
-    public function planSubscription(string $subscriptionSlug): ?Subscription
+    public function planSubscription(string $subscriptionSlug): ?PlanSubscription
     {
         return $this->planSubscriptions()->where('slug', $subscriptionSlug)->first();
     }
@@ -62,7 +62,7 @@ trait HasPlanSubscriptions
         return $subscription && $subscription->active();
     }
 
-    public function newPlanSubscription(string $subscription, Plan $plan, ?Carbon $startDate = null): Subscription
+    public function newPlanSubscription(string $subscription, Plan $plan, ?Carbon $startDate = null): PlanSubscription
     {
         $trial = new Period(
             interval: $plan->trial_interval,

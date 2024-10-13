@@ -3,7 +3,7 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Subscription Tables
+    | PlanSubscription Tables
     |--------------------------------------------------------------------------
     |
     |
@@ -18,7 +18,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Subscription Models
+    | PlanSubscription Models
     |--------------------------------------------------------------------------
     |
     | Models used to manage subscriptions. You can replace to use your own models,
@@ -29,8 +29,8 @@ return [
 
     'models' => [
         'plan' => \Turahe\Subscription\Models\Plan::class,
-        'feature' => \Turahe\Subscription\Models\Feature::class,
-        'subscription' => \Turahe\Subscription\Models\Subscription::class,
-        'subscription_usage' => \Turahe\Subscription\Models\SubscriptionUsage::class,
+        'feature' => \Turahe\Subscription\Models\PlanFeature::class,
+        'subscription' => \Turahe\Subscription\Models\PlanSubscription::class,
+        'subscription_usage' => \Turahe\Subscription\Models\PlanSubscriptionUsage::class,
     ],
 ];

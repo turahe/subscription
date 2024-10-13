@@ -11,7 +11,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create(config('subscription.tables.plans'), function (Blueprint $table): void {
+        Schema::create(config('subscription.tables.plans', 'plans'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
 
             $table->string('name');
@@ -62,6 +62,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists(config('subscription.tables.plans'));
+        Schema::dropIfExists(config('subscription.tables.plans', 'plans'));
     }
 };

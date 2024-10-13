@@ -13,14 +13,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
-use LogicException;
+use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Turahe\Subscription\Services\Period;
 use Turahe\Subscription\Traits\BelongsToPlan;
-use Turahe\Subscription\Traits\HasSlug;
 use Turahe\UserStamps\Concerns\HasUserStamps;
 
-class Subscription extends Model
+class PlanSubscription extends Model
 {
     use BelongsToPlan;
     use Expirable;
@@ -184,12 +183,12 @@ class Subscription extends Model
      *
      * @return $this
      *
-     * @throws LogicException
+     * @throws \LogicException
      */
     public function renew(): self
     {
         if ($this->ended() && $this->canceled()) {
-            throw new LogicException('Unable to renew canceled ended subscription.');
+            throw new \LogicException('Unable to renew canceled ended subscription.');
         }
 
         $subscription = $this;
@@ -289,7 +288,7 @@ class Subscription extends Model
         return $this;
     }
 
-    public function recordFeatureUsage(string $featureSlug, int $uses = 1, bool $incremental = true): SubscriptionUsage
+    public function recordFeatureUsage(string $featureSlug, int $uses = 1, bool $incremental = true): PlanSubscriptionUsage
     {
         $feature = $this->plan->features()->where('slug', $featureSlug)->first();
 
@@ -319,7 +318,7 @@ class Subscription extends Model
         return $usage;
     }
 
-    public function reduceFeatureUsage(string $featureSlug, int $uses = 1): ?SubscriptionUsage
+    public function reduceFeatureUsage(string $featureSlug, int $uses = 1): ?PlanSubscriptionUsage
     {
         $usage = $this->usage()->byFeatureSlug($featureSlug)->first();
 

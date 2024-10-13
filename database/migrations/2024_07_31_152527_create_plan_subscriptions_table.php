@@ -5,16 +5,17 @@ declare(strict_types=1);
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Turahe\Subscription\Models\Plan;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create(config('subscription.tables.subscriptions'), function (Blueprint $table): void {
+        Schema::create(config('subscription.tables.subscriptions', 'plan_subscriptions'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
 
             $table->ulidMorphs('subscriber');
-            $table->foreignIdFor(config('subscription.models.plan'));
+            $table->foreignIdFor(config('subscription.models.plan', Plan::class));
             $table->json('name');
             $table->string('slug')->index()->unique();
             $table->json('description')->nullable();
@@ -50,6 +51,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists(config('subscription.tables.subscription'));
+        Schema::dropIfExists(config('subscription.tables.subscription', 'plan_subscriptions'));
     }
 };

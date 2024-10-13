@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
+use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Turahe\Subscription\Services\Period;
 use Turahe\Subscription\Traits\BelongsToPlan;
-use Turahe\Subscription\Traits\HasSlug;
 use Turahe\UserStamps\Concerns\HasUserStamps;
 
-class Feature extends Model implements Sortable
+class PlanFeature extends Model implements Sortable
 {
     use BelongsToPlan;
     use HasSlug;
@@ -84,7 +84,7 @@ class Feature extends Model implements Sortable
     {
         parent::boot();
 
-        static::deleted(function (Feature $feature): void {
+        static::deleted(function (PlanFeature $feature): void {
             $feature->usage()->delete();
         });
     }

@@ -56,7 +56,7 @@ That's it, we only have to use that trait in our User model! Now your users may 
 
 ```php
 use Turahe\Subscription\Models\Plan;
-use Turahe\Subscription\Models\Feature;
+use Turahe\Subscription\Models\PlanFeature;
 use Turahe\Subscription\Interval;
 
 $plan = Plan::create([
@@ -74,10 +74,10 @@ $plan = Plan::create([
 
 // Create multiple plan features at once
 $plan->features()->saveMany([
-    new Feature(['name' => 'listings', 'value' => 50, 'sort_order' => 1]),
-    new Feature(['name' => 'pictures_per_listing', 'value' => 10, 'sort_order' => 5]),
-    new Feature(['name' => 'listing_duration_days', 'value' => 30, 'sort_order' => 10, 'resettable_period' => 1, 'resettable_interval' => 'month']),
-    new Feature(['name' => 'listing_title_bold', 'value' => 'Y', 'sort_order' => 15])
+    new PlanFeature(['name' => 'listings', 'value' => 50, 'sort_order' => 1]),
+    new PlanFeature(['name' => 'pictures_per_listing', 'value' => 10, 'sort_order' => 5]),
+    new PlanFeature(['name' => 'listing_duration_days', 'value' => 30, 'sort_order' => 10, 'resettable_period' => 1, 'resettable_interval' => 'month']),
+    new PlanFeature(['name' => 'listing_title_bold', 'value' => 'Y', 'sort_order' => 15])
 ]);
 ```
 
@@ -113,17 +113,17 @@ Both `$plan->features` and `$plan->subscriptions` are collections, driven from r
 Say you want to show the value of the feature _pictures_per_listing_ from above. You can do so in many ways:
 
 ```php
-use Turahe\Subscription\Models\Feature;
-use Turahe\Subscription\Models\Subscription;
+use Turahe\Subscription\Models\PlanFeature;
+use Turahe\Subscription\Models\PlanSubscription;
 
 // Use the plan instance to get feature's value
 $amountOfPictures = $plan->getFeatureBySlug('pictures_per_listing')->value;
 
 // Query the feature itself directly
-$amountOfPictures = Feature::where('slug', 'pictures_per_listing')->first()->value;
+$amountOfPictures = PlanFeature::where('slug', 'pictures_per_listing')->first()->value;
 
 // Get feature value through the subscription instance
-$amountOfPictures = Subscription::find(1)->getFeatureValue('pictures_per_listing');
+$amountOfPictures = PlanSubscription::find(1)->getFeatureValue('pictures_per_listing');
 ```
 
 ### Create a Subscription
@@ -147,10 +147,10 @@ You can change subscription plan easily as follows:
 
 ```php
 use Turahe\Subscription\Models\Plan;
-use Turahe\Subscription\Models\Subscription;
+use Turahe\Subscription\Models\PlanSubscription;
 
 $plan = Plan::find(2);
-$subscription = Subscription::find(1);
+$subscription = PlanSubscription::find(1);
 
 // Change subscription plan
 $subscription->changePlan($plan);
@@ -163,10 +163,10 @@ If both plans (current and new plan) have the same billing frequency (e.g., `inv
 Plan features are great for fine-tuning subscriptions, you can top-up certain feature for X times of usage, so users may then use it only for that amount. Features also have the ability to be resettable and then it's usage could be expired too. See the following examples:
 
 ```php
-use Turahe\Subscription\Models\Feature;
+use Turahe\Subscription\Models\PlanFeature;
 
 // Find plan feature
-$feature = Feature::where('name', 'listing_duration_days')->first();
+$feature = PlanFeature::where('name', 'listing_duration_days')->first();
 
 // Get feature reset date
 $feature->getResetDate(new \Carbon\Carbon());
@@ -277,26 +277,26 @@ $user->planSubscription('main')->cancel(true);
 #### Subscription Model
 
 ```php
-use Turahe\Auth\Models\User;use Turahe\Subscription\Models\Subscription;
+use Turahe\Auth\Models\User;use Turahe\Subscription\Models\PlanSubscription;
 
 // Get subscriptions by plan
-$subscriptions = Subscription::byPlanId($plan_id)->get();
+$subscriptions = PlanSubscription::byPlanId($plan_id)->get();
 
 // Get bookings of the given user
 $user = User::find(1);
-$bookingsOfSubscriber = Subscription::ofSubscriber($user)->get();
+$bookingsOfSubscriber = PlanSubscription::ofSubscriber($user)->get();
 
 // Get subscriptions with trial ending in 3 days
-$subscriptions = Subscription::findEndingTrial(3)->get();
+$subscriptions = PlanSubscription::findEndingTrial(3)->get();
 
 // Get subscriptions with ended trial
-$subscriptions = Subscription::findEndedTrial()->get();
+$subscriptions = PlanSubscription::findEndedTrial()->get();
 
 // Get subscriptions with period ending in 3 days
-$subscriptions = Subscription::findEndingPeriod(3)->get();
+$subscriptions = PlanSubscription::findEndingPeriod(3)->get();
 
 // Get subscriptions with ended period
-$subscriptions = Subscription::findEndedPeriod()->get();
+$subscriptions = PlanSubscription::findEndedPeriod()->get();
 ```
 
 ### Models

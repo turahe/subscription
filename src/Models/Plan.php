@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
+use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use Turahe\Subscription\Traits\HasSlug;
 use Turahe\UserStamps\Concerns\HasUserStamps;
 
 class Plan extends Model implements Sortable
@@ -132,7 +132,7 @@ class Plan extends Model implements Sortable
         return $this->grace_period && $this->grace_interval;
     }
 
-    public function getFeatureBySlug(string $featureSlug): ?Feature
+    public function getFeatureBySlug(string $featureSlug): ?PlanFeature
     {
         return $this->features()->where('slug', $featureSlug)->first();
     }

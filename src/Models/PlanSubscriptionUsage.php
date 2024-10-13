@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Turahe\UserStamps\Concerns\HasUserStamps;
 
-class SubscriptionUsage extends Model
+class PlanSubscriptionUsage extends Model
 {
     use Expirable;
     use HasUlids;
@@ -65,7 +65,7 @@ class SubscriptionUsage extends Model
 
     public function scopeByFeatureSlug(Builder $builder, string $featureSlug): Builder
     {
-        $model = config('subscription.models.feature', Feature::class);
+        $model = config('subscription.models.feature', PlanFeature::class);
         $feature = tap(new $model)->where('slug', $featureSlug)->first();
 
         return $builder->where('feature_id', $feature ? $feature->getKey() : null);
