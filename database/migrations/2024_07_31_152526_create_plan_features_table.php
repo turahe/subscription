@@ -18,10 +18,10 @@ return new class extends Migration
             $table->json('name');
             $table->string('slug')->unique();
             $table->json('description')->nullable();
-            $table->string('value');
+            $table->integer('value');
             $table->unsignedSmallInteger('resettable_period')->default(0);
             $table->string('resettable_interval')->default('month');
-            $table->unsignedMediumInteger('sort_order')->default(0);
+            $table->unsignedBigInteger('record_ordering')->nullable();
 
             $table->foreignUlid('created_by')
                 ->index()

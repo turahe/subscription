@@ -4,23 +4,17 @@ declare(strict_types=1);
 
 namespace Turahe\Subscription\Models;
 
-use ALajusticia\Expirable\Traits\Expirable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Turahe\UserStamps\Concerns\HasUserStamps;
 
 class PlanSubscriptionUsage extends Model
 {
-    use Expirable;
     use HasUlids;
-    use HasUserStamps;
     use SoftDeletes;
-
-    const EXPIRES_AT = 'valid_until';
 
     /**
      * @var string[]

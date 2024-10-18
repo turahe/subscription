@@ -15,14 +15,12 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Turahe\Subscription\Services\Period;
 use Turahe\Subscription\Traits\BelongsToPlan;
-use Turahe\UserStamps\Concerns\HasUserStamps;
 
 class PlanFeature extends Model implements Sortable
 {
     use BelongsToPlan;
     use HasSlug;
     use HasUlids;
-    use HasUserStamps;
     use SoftDeletes;
     use SortableTrait;
 
@@ -51,7 +49,7 @@ class PlanFeature extends Model implements Sortable
     protected $casts = [
         'plan_id' => 'integer',
         'slug' => 'string',
-        'value' => 'string',
+        'value' => 'integer',
         'resettable_period' => 'integer',
         'resettable_interval' => 'string',
         'record_ordering' => 'integer',

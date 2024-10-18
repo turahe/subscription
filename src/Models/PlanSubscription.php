@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Turahe\Subscription\Models;
 
-use ALajusticia\Expirable\Traits\Expirable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
@@ -17,15 +16,12 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Turahe\Subscription\Services\Period;
 use Turahe\Subscription\Traits\BelongsToPlan;
-use Turahe\UserStamps\Concerns\HasUserStamps;
 
 class PlanSubscription extends Model
 {
     use BelongsToPlan;
-    use Expirable;
     use HasSlug;
     use HasUlids;
-    use HasUserStamps;
     use SoftDeletes;
 
     const EXPIRES_AT = 'ends_at';

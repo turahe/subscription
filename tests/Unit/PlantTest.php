@@ -2,9 +2,10 @@
 
 namespace Turahe\Subscription\Tests\Unit;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Attributes\Test;
-use Turahe\Subscription\Models\Plan;
+use Turahe\Subscription\Tests\Models\Plan;
 use Turahe\Subscription\Tests\TestCase;
 
 class PlantTest extends TestCase
@@ -36,9 +37,9 @@ class PlantTest extends TestCase
         $this->assertTrue($deleted);
         $this->assertSoftDeleted(config('subscription.tables.plans'), [
             'id' => $plan->id,
-            'username' => $plan->username,
-            'email' => $plan->email,
-            'phone' => $plan->phone,
+            'name' => $plan->name,
+            'slug' => $plan->slug,
+            'description' => $plan->description,
         ]);
     }
 
@@ -46,9 +47,9 @@ class PlantTest extends TestCase
     public function it_errors_when_updating_the_plan()
     {
         $plan = Plan::factory()->create();
-        $this->expectException(\Exception::class);
+        $this->expectException(QueryException::class);
 
-        $plan->update(['username' => null]);
+        $plan->update(['name' => null]);
     }
 
     #[Test]
@@ -56,13 +57,13 @@ class PlantTest extends TestCase
     {
         $plan = Plan::factory()->create();
 
-        $update = ['username' => 'username'];
+        $update = ['name' => 'name'];
         $updated = $plan->update($update);
 
-        $plan = $plan->getUsername($update['username']);
+        $plan = $plan->where('name', $update['name'])->first();
 
         $this->assertTrue($updated);
-        $this->assertEquals($update['username'], $plan->username);
+        $this->assertEquals($update['name'], $plan->name);
     }
 
     #[Test]
