@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Turahe\Subscription\Tests\Models\Plan;
 use Turahe\Subscription\Tests\TestCase;
 
-class PlantTest extends TestCase
+class PlanTest extends TestCase
 {
     #[Test]
     public function it_can_create_the_plan()
