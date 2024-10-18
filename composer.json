@@ -25,6 +25,7 @@
             "Turahe\\Subscription\\Tests\\": "tests/"
         }
     },
+    "license": "MIT",
     "require": {
         "turahe/ledger": "dev-master",
         "spatie/laravel-sluggable": "^3.6",
