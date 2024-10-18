@@ -26,7 +26,7 @@
         }
     },
     "require": {
-        "turahe/ledger": "^1.0",
+        "turahe/ledger": "dev-master",
         "spatie/laravel-sluggable": "^3.6",
         "spatie/eloquent-sortable": "^4.4"
     },
