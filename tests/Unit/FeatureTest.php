@@ -2,6 +2,7 @@
 
 namespace Turahe\Subscription\Tests\Unit;
 
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use PHPUnit\Framework\Attributes\Test;
 use Turahe\Subscription\Tests\Models\Plan;
@@ -80,5 +81,23 @@ class FeatureTest extends TestCase
         });
 
         $this->assertCount(3, PlanFeature::all());
+    }
+
+    #[Test]
+    public function it_can_feature_reset()
+    {
+        $data = [
+            'resettable_period' => 1,
+            'resettable_interval' => 'month',
+        ];
+
+        $plan = Plan::factory()->create();
+        $feature = $plan->features()->save(PlanFeature::factory($data)->make());
+
+        $this->assertEquals($data['resettable_period'], $feature->resettable_period);
+        $this->assertEquals($data['resettable_interval'], $feature->resettable_interval);
+
+        $this->assertInstanceOf(Carbon::class, $feature->getResetDate());
+        $this->assertEquals(Carbon::now()->addMonth()->format('Y-m-d H:i:s'), $feature->getResetDate()->format('Y-m-d H:i:s'));
     }
 }

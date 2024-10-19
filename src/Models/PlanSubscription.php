@@ -64,16 +64,6 @@ class PlanSubscription extends Model
         'deleted_at' => 'datetime',
     ];
 
-    /**
-     * The attributes that are translatable.
-     *
-     * @var array
-     */
-    public $translatable = [
-        'name',
-        'description',
-    ];
-
     public function getTable(): string
     {
         return config('subscription.tables.subscriptions');
@@ -158,6 +148,7 @@ class PlanSubscription extends Model
      */
     public function changePlan(Plan $plan): self
     {
+
         // If plans does not have the same billing frequency
         // (e.g., invoice_interval and invoice_period) we will update
         // the billing dates starting today, and since we are basically creating

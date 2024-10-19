@@ -84,7 +84,7 @@ class Plan extends Model implements Sortable
 
     public function getTable(): string
     {
-        return config('subscription.tables.plans');
+        return config('subscription.tables.plans', 'plans');
     }
 
     protected static function boot(): void

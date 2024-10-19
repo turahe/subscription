@@ -57,16 +57,6 @@ class PlanFeature extends Model implements Sortable
     ];
 
     /**
-     * The attributes that are translatable.
-     *
-     * @var array
-     */
-    public $translatable = [
-        'name',
-        'description',
-    ];
-
-    /**
      * @var array|string[]
      */
     public array $sortable = [
