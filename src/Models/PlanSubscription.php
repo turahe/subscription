@@ -16,12 +16,14 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Turahe\Subscription\Services\Period;
 use Turahe\Subscription\Traits\BelongsToPlan;
+use Turahe\UserStamps\Concerns\HasUserStamps;
 
 class PlanSubscription extends Model
 {
     use BelongsToPlan;
     use HasSlug;
     use HasUlids;
+    use HasUserStamps;
     use SoftDeletes;
 
     const EXPIRES_AT = 'ends_at';

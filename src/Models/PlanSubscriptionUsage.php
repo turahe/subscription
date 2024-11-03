@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Turahe\UserStamps\Concerns\HasUserStamps;
 
 class PlanSubscriptionUsage extends Model
 {
     use HasUlids;
+    use HasUserStamps;
     use SoftDeletes;
 
     /**

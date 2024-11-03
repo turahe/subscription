@@ -13,12 +13,14 @@ use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Turahe\UserStamps\Concerns\HasUserStamps;
 
 class Plan extends Model implements Sortable
 {
     use HasFactory;
     use HasSlug;
     use HasUlids;
+    use HasUserStamps;
     use SoftDeletes;
     use SortableTrait;
 

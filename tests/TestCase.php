@@ -26,6 +26,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return [
             \Turahe\Subscription\SubscriptionServiceProvider::class,
             \Spatie\EloquentSortable\EloquentSortableServiceProvider::class,
+            \Turahe\UserStamps\UserStampsServiceProvider::class,
         ];
     }
 

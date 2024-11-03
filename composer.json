@@ -29,7 +29,8 @@
     "require": {
         "turahe/ledger": "dev-master",
         "spatie/laravel-sluggable": "^3.6",
-        "spatie/eloquent-sortable": "^4.4"
+        "spatie/eloquent-sortable": "^4.4",
+        "turahe/laravel-userstamps": "^1.0"
     },
     "require-dev": {
         "laravel/pint": "^1.17",
