@@ -26,7 +26,6 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return [
             \Turahe\Subscription\SubscriptionServiceProvider::class,
             \Spatie\EloquentSortable\EloquentSortableServiceProvider::class,
-            \Turahe\Ledger\Providers\LedgerServiceProvider::class,
             \Turahe\UserStamps\UserStampsServiceProvider::class,
         ];
     }
@@ -37,8 +36,6 @@ class TestCase extends \Orchestra\Testbench\TestCase
     protected function getEnvironmentSetUp($app)
     {
         $app['config']->set('userstamps.users_table_column_type', 'ulid');
-        $app['config']->set('ledger.shipping_provider', Organization::class);
-        $app['config']->set('ledger.insurance_provider', Organization::class);
         $app['config']->set('subscription', [
             'main_subscription_tag' => 'main',
             'fallback_plan_tag' => null,
