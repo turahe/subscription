@@ -10,9 +10,9 @@ use Turahe\Subscription\Traits\HasPlanSubscriptions;
 
 class User extends Model
 {
-    use HasUlids;
     use HasFactory;
     use HasPlanSubscriptions;
+    use HasUlids;
 
     protected $table = 'users';
 

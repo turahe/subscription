@@ -117,7 +117,7 @@ class PlanTest extends TestCase
         $plan = Plan::factory()->create();
         $feature = PlanFeature::factory()->create([
             'plan_id' => $plan->id,
-            'slug' => 'test-1'
+            'slug' => 'test-1',
         ]);
 
         $this->assertSame($feature->slug, $plan->getFeatureBySlug('test-1')->slug);

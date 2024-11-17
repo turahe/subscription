@@ -18,6 +18,69 @@ use Turahe\Subscription\Services\Period;
 use Turahe\Subscription\Traits\BelongsToPlan;
 use Turahe\UserStamps\Concerns\HasUserStamps;
 
+/**
+ * @property string $id
+ * @property string $subscriber_type
+ * @property int $subscriber_id
+ * @property int $plan_id
+ * @property string $name
+ * @property string $slug
+ * @property string|null $description
+ * @property string|null $timezone
+ * @property \Illuminate\Support\Carbon|null $trial_ends_at
+ * @property \Illuminate\Support\Carbon|null $starts_at
+ * @property \Illuminate\Support\Carbon|null $ends_at
+ * @property \Illuminate\Support\Carbon|null $cancels_at
+ * @property \Illuminate\Support\Carbon|null $canceled_at
+ * @property string|null $created_by
+ * @property string|null $updated_by
+ * @property string|null $deleted_by
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $author
+ * @property-read \App\Models\User|null $destroyer
+ * @property-read \App\Models\User|null $editor
+ * @property-read \Turahe\Subscription\Models\Plan|null $plan
+ * @property-read Model|\Eloquent $subscriber
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Turahe\Subscription\Models\PlanSubscriptionUsage> $usage
+ * @property-read int|null $usage_count
+ *
+ * @method static Builder<static>|PlanSubscription byPlanId(int $planId)
+ * @method static Builder<static>|PlanSubscription findActive()
+ * @method static Builder<static>|PlanSubscription findEndedPeriod()
+ * @method static Builder<static>|PlanSubscription findEndedTrial()
+ * @method static Builder<static>|PlanSubscription findEndingPeriod(int $dayRange = 3)
+ * @method static Builder<static>|PlanSubscription findEndingTrial(int $dayRange = 3)
+ * @method static Builder<static>|PlanSubscription newModelQuery()
+ * @method static Builder<static>|PlanSubscription newQuery()
+ * @method static Builder<static>|PlanSubscription ofSubscriber(\Illuminate\Database\Eloquent\Model $subscriber)
+ * @method static Builder<static>|PlanSubscription onlyTrashed()
+ * @method static Builder<static>|PlanSubscription query()
+ * @method static Builder<static>|PlanSubscription whereCanceledAt($value)
+ * @method static Builder<static>|PlanSubscription whereCancelsAt($value)
+ * @method static Builder<static>|PlanSubscription whereCreatedAt($value)
+ * @method static Builder<static>|PlanSubscription whereCreatedBy($value)
+ * @method static Builder<static>|PlanSubscription whereDeletedAt($value)
+ * @method static Builder<static>|PlanSubscription whereDeletedBy($value)
+ * @method static Builder<static>|PlanSubscription whereDescription($value)
+ * @method static Builder<static>|PlanSubscription whereEndsAt($value)
+ * @method static Builder<static>|PlanSubscription whereId($value)
+ * @method static Builder<static>|PlanSubscription whereName($value)
+ * @method static Builder<static>|PlanSubscription wherePlanId($value)
+ * @method static Builder<static>|PlanSubscription whereSlug($value)
+ * @method static Builder<static>|PlanSubscription whereStartsAt($value)
+ * @method static Builder<static>|PlanSubscription whereSubscriberId($value)
+ * @method static Builder<static>|PlanSubscription whereSubscriberType($value)
+ * @method static Builder<static>|PlanSubscription whereTimezone($value)
+ * @method static Builder<static>|PlanSubscription whereTrialEndsAt($value)
+ * @method static Builder<static>|PlanSubscription whereUpdatedAt($value)
+ * @method static Builder<static>|PlanSubscription whereUpdatedBy($value)
+ * @method static Builder<static>|PlanSubscription withTrashed()
+ * @method static Builder<static>|PlanSubscription withoutTrashed()
+ *
+ * @mixin \Eloquent
+ */
 class PlanSubscription extends Model
 {
     use BelongsToPlan;
