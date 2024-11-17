@@ -46,7 +46,7 @@ class PlanSubscriptionUsage extends Model
 
     public function getTable(): string
     {
-        return config('subscription.tables.subscription_usage');
+        return config('subscription.tables.subscription_usage', 'plan_subscription_usage');
     }
 
     public function feature(): BelongsTo

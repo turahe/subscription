@@ -68,7 +68,7 @@ class PlanSubscription extends Model
 
     public function getTable(): string
     {
-        return config('subscription.tables.subscriptions');
+        return config('subscription.tables.subscriptions', 'plan_subscriptions');
     }
 
     protected static function boot(): void
@@ -101,7 +101,7 @@ class PlanSubscription extends Model
 
     public function usage(): HasMany
     {
-        return $this->hasMany(config('subscription.models.subscription_usage'));
+        return $this->hasMany(config('subscription.models.subscription_usage', PlanSubscriptionUsage::class));
     }
 
     public function active(): bool

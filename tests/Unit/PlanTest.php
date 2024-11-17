@@ -6,6 +6,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Attributes\Test;
 use Turahe\Subscription\Tests\Models\Plan;
+use Turahe\Subscription\Tests\Models\PlanFeature;
 use Turahe\Subscription\Tests\TestCase;
 
 class PlanTest extends TestCase
@@ -84,5 +85,41 @@ class PlanTest extends TestCase
 
         $this->assertInstanceOf(Collection::class, $plans);
         $this->assertCount(3, $plans->all());
+    }
+
+    #[Test]
+    public function it_can_check_is_plan_is_free()
+    {
+        $plan = Plan::factory()->create(['price' => 0]);
+
+        $this->assertTrue($plan->isFree());
+    }
+
+    #[Test]
+    public function it_can_check_is_plan_is_trial()
+    {
+        $plan = Plan::factory()->create(['trial_period' => 3, 'trial_interval' => 'day']);
+
+        $this->assertTrue($plan->hasTrial());
+    }
+
+    #[Test]
+    public function it_can_check_is_plan_is_grace_period()
+    {
+        $plan = Plan::factory()->create(['grace_period' => 3, 'grace_interval' => 'day']);
+
+        $this->assertTrue($plan->hasTrial());
+    }
+
+    #[Test]
+    public function it_can_get_features_by_slug()
+    {
+        $plan = Plan::factory()->create();
+        $feature = PlanFeature::factory()->create([
+            'plan_id' => $plan->id,
+            'slug' => 'test-1'
+        ]);
+
+        $this->assertSame($feature->slug, $plan->getFeatureBySlug('test-1')->slug);
     }
 }

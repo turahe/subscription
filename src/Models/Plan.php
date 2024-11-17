@@ -109,12 +109,12 @@ class Plan extends Model implements Sortable
 
     public function features(): HasMany
     {
-        return $this->hasMany(config('subscription.models.feature'), 'plan_id');
+        return $this->hasMany(config('subscription.models.feature', PlanFeature::class), 'plan_id');
     }
 
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(config('subscription.models.subscription'));
+        return $this->hasMany(config('subscription.models.subscription', PlanSubscription::class), 'plan_id');
     }
 
     public function isFree(): bool

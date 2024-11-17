@@ -27,21 +27,20 @@ class SubscriptionTest extends TestCase
     #[Test]
     public function it_can_create_the_plan_subscription()
     {
-        $user = User::factory()->create();
-        $planSubscription = $user->newPlanSubscription('test-1', $this->plan, now());
+        $planSubscription = $this->user->newPlanSubscription('test-1', $this->plan, now());
 
         $this->assertInstanceOf(PlanSubscription::class, $planSubscription);
-        $this->assertTrue($user->subscribedTo($this->plan->getKey()));
+        $this->assertTrue($this->user->subscribedTo($this->plan->getKey()));
+        $this->assertTrue($planSubscription->active());
     }
 
     #[Test]
     public function it_can_update_the_plan_subscription()
     {
-        $user = User::factory()->create();
-        $plan = Plan::factory()->create();
-        $planSubscription = $user->newPlanSubscription('test-1', $this->plan, now());
+        $planSubscription = $this->user->newPlanSubscription('test-1', $this->plan, now());
 
         $this->assertInstanceOf(PlanSubscription::class, $planSubscription);
+        $this->assertTrue($planSubscription->active());
     }
 
     #[Test]

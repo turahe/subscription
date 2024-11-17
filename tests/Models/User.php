@@ -2,6 +2,7 @@
 
 namespace Turahe\Subscription\Tests\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Turahe\Subscription\Tests\Factories\UserFactory;
@@ -9,6 +10,7 @@ use Turahe\Subscription\Traits\HasPlanSubscriptions;
 
 class User extends Model
 {
+    use HasUlids;
     use HasFactory;
     use HasPlanSubscriptions;
 

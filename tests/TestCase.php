@@ -5,7 +5,7 @@ namespace Turahe\Subscription\Tests;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Config;
+use Turahe\Subscription\Tests\Models\Organization;
 use Turahe\Subscription\Tests\Models\User;
 
 class TestCase extends \Orchestra\Testbench\TestCase
@@ -26,6 +26,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
         return [
             \Turahe\Subscription\SubscriptionServiceProvider::class,
             \Spatie\EloquentSortable\EloquentSortableServiceProvider::class,
+            \Turahe\Ledger\Providers\LedgerServiceProvider::class,
             \Turahe\UserStamps\UserStampsServiceProvider::class,
         ];
     }
@@ -35,28 +36,31 @@ class TestCase extends \Orchestra\Testbench\TestCase
      */
     protected function getEnvironmentSetUp($app)
     {
-        $app['config']->set('subby', [
+        $app['config']->set('userstamps.users_table_column_type', 'ulid');
+        $app['config']->set('ledger.shipping_provider', Organization::class);
+        $app['config']->set('ledger.insurance_provider', Organization::class);
+        $app['config']->set('subscription', [
             'main_subscription_tag' => 'main',
             'fallback_plan_tag' => null,
             // Database Tables
             'tables' => [
                 'plans' => 'plans',
-                'plan_combinations' => 'plan_combinations',
-                'plan_features' => 'plan_features',
-                'plan_subscriptions' => 'plan_subscriptions',
-                'plan_subscription_features' => 'plan_subscription_features',
-                'plan_subscription_schedules' => 'plan_subscription_schedules',
-                'plan_subscription_usage' => 'plan_subscription_usage',
+                'combinations' => 'plan_combinations',
+                'features' => 'plan_features',
+                'subscriptions' => 'plan_subscriptions',
+                'subscription_features' => 'plan_subscription_features',
+                'subscription_schedules' => 'plan_subscription_schedules',
+                'subscription_usage' => 'plan_subscription_usage',
             ],
             // Models
             'models' => [
                 'plan' => \Turahe\Subscription\Models\Plan::class,
                 //                'plan_combination' => \Turahe\PlanSubscription\Models\PlanCombination::class,
-                'plan_feature' => \Turahe\Subscription\Models\PlanFeature::class,
-                'plan_subscription' => \Turahe\Subscription\Models\PlanSubscription::class,
+                'feature' => \Turahe\Subscription\Models\PlanFeature::class,
+                'subscription' => \Turahe\Subscription\Models\PlanSubscription::class,
                 //                'plan_subscription_feature' => \Turahe\PlanSubscription\Models\PlanSubscriptionFeature::class,
                 //                'plan_subscription_schedule' => \Turahe\PlanSubscription\Models\PlanSubscriptionSchedule::class,
-                'plan_subscription_usage' => \Turahe\Subscription\Models\PlanSubscriptionUsage::class,
+                'subscription_usage' => \Turahe\Subscription\Models\PlanSubscriptionUsage::class,
             ],
             'services' => [
                 'payment_methods' => [
@@ -77,17 +81,23 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
     protected function setUpDatabase()
     {
-        Config::set('auth.providers.users.model', User::class);
+        $this->app['config']->set('auth.providers.users.model', User::class);
 
         $this->app['db']->connection()->getSchemaBuilder()->create('dummies', function (Blueprint $table) {
-            $table->increments('id');
+            $table->ulid('id')->primary();
             $table->string('name');
             $table->string('custom_column_sort');
             $table->integer('record_ordering');
         });
 
+        $this->app['db']->connection()->getSchemaBuilder()->create('organizations', function ($table) {
+            $table->ulid('id')->primary();
+            $table->string('name');
+            $table->timestamps();
+        });
+
         $this->app['db']->connection()->getSchemaBuilder()->create('users', function (Blueprint $table) {
-            $table->increments('id');
+            $table->ulid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamps();

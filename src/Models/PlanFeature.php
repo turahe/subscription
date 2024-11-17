@@ -67,7 +67,7 @@ class PlanFeature extends Model implements Sortable
 
     public function getTable(): string
     {
-        return config('subscription.tables.features');
+        return config('subscription.tables.features', 'plan_features');
     }
 
     protected static function boot(): void
