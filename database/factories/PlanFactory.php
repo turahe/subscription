@@ -1,11 +1,11 @@
 <?php
 
-namespace Turahe\Subscription\Tests\Factories;
+namespace Turahe\Subscription\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use Turahe\Subscription\Enums\Interval;
-use Turahe\Subscription\Tests\Models\Plan;
+use Turahe\Subscription\Models\Plan;
 
 class PlanFactory extends Factory
 {

@@ -6,6 +6,7 @@ namespace Turahe\Subscription\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -69,6 +70,7 @@ use Turahe\UserStamps\Concerns\HasUserStamps;
 class PlanFeature extends Model implements Sortable
 {
     use BelongsToPlan;
+    use HasFactory;
     use HasSlug;
     use HasUlids;
     use HasUserStamps;
@@ -138,7 +140,7 @@ class PlanFeature extends Model implements Sortable
 
     public function usage(): HasMany
     {
-        return $this->hasMany(config('subscription.models.subscription_usage'));
+        return $this->hasMany(config('subscription.models.subscription_usage', PlanSubscriptionUsage::class));
     }
 
     public function getResetDate(?Carbon $dateFrom = null): Carbon
@@ -146,5 +148,10 @@ class PlanFeature extends Model implements Sortable
         $period = new Period($this->resettable_interval, $this->resettable_period, $dateFrom ?? Carbon::now());
 
         return $period->getEndDate();
+    }
+
+    protected static function newFactory()
+    {
+        return \Turahe\Subscription\Database\Factories\PlanFeatureFactory::new();
     }
 }

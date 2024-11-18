@@ -431,4 +431,9 @@ class PlanSubscription extends Model
 
         return $feature->value ?? null;
     }
+
+    protected static function newFactory()
+    {
+        return \Turahe\Subscription\Database\Factories\PlanSubscriptionFactory::new();
+    }
 }

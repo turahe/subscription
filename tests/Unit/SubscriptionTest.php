@@ -3,8 +3,8 @@
 namespace Turahe\Subscription\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
+use Turahe\Subscription\Models\Plan;
 use Turahe\Subscription\Models\PlanSubscription;
-use Turahe\Subscription\Tests\Models\Plan;
 use Turahe\Subscription\Tests\Models\User;
 use Turahe\Subscription\Tests\TestCase;
 
@@ -19,7 +19,7 @@ class SubscriptionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->user = User::factory()->create();
+        $this->user = User::create([]);
         $this->plan = Plan::factory()->create();
 
     }

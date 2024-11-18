@@ -15,7 +15,7 @@ trait BelongsToPlan
         return $this->belongsTo(config('subscription.models.plan', Plan::class), 'plan_id');
     }
 
-    public function scopeByPlanId(Builder $builder, int $planId): Builder
+    public function scopeByPlanId(Builder $builder, string|int $planId): Builder
     {
         return $builder->where('plan_id', $planId);
     }

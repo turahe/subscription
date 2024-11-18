@@ -211,7 +211,8 @@ class Plan extends Model implements Sortable
      */
     public function activate(): self
     {
-        $this->update(['is_active' => true]);
+        $this->is_active = true;
+        $this->save();
 
         return $this;
     }
@@ -221,8 +222,14 @@ class Plan extends Model implements Sortable
      */
     public function deactivate(): self
     {
-        $this->update(['is_active' => false]);
+        $this->is_active = false;
+        $this->save();
 
         return $this;
+    }
+
+    protected static function newFactory()
+    {
+        return \Turahe\Subscription\Database\Factories\PlanFactory::new();
     }
 }

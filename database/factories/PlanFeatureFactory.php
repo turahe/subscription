@@ -1,9 +1,9 @@
 <?php
 
-namespace Turahe\Subscription\Tests\Factories;
+namespace Turahe\Subscription\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Turahe\Subscription\Tests\Models\PlanFeature;
+use Turahe\Subscription\Models\PlanFeature;
 
 class PlanFeatureFactory extends Factory
 {

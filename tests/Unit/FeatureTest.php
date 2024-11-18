@@ -5,8 +5,8 @@ namespace Turahe\Subscription\Tests\Unit;
 use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use PHPUnit\Framework\Attributes\Test;
-use Turahe\Subscription\Tests\Models\Plan;
-use Turahe\Subscription\Tests\Models\PlanFeature;
+use Turahe\Subscription\Models\Plan;
+use Turahe\Subscription\Models\PlanFeature;
 use Turahe\Subscription\Tests\TestCase;
 
 class FeatureTest extends TestCase

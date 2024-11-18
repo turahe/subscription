@@ -17,7 +17,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Turahe\\Subscription\\": "src/"
+            "Turahe\\Subscription\\": "src/",
+            "Turahe\\Subscription\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
@@ -29,7 +30,8 @@
     "require": {
         "spatie/eloquent-sortable": "^4.4",
         "spatie/laravel-sluggable": "^3.6",
-        "turahe/laravel-userstamps": "^1.0"
+        "turahe/laravel-userstamps": "^1.0",
+        "turahe/master-data": "^1.0"
     },
     "require-dev": {
         "laravel/pint": "^1.17",

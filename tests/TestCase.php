@@ -5,7 +5,6 @@ namespace Turahe\Subscription\Tests;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Turahe\Subscription\Tests\Models\Organization;
 use Turahe\Subscription\Tests\Models\User;
 
 class TestCase extends \Orchestra\Testbench\TestCase
@@ -52,18 +51,7 @@ class TestCase extends \Orchestra\Testbench\TestCase
             // Models
             'models' => [
                 'plan' => \Turahe\Subscription\Models\Plan::class,
-                //                'plan_combination' => \Turahe\PlanSubscription\Models\PlanCombination::class,
                 'feature' => \Turahe\Subscription\Models\PlanFeature::class,
-                'subscription' => \Turahe\Subscription\Models\PlanSubscription::class,
-                //                'plan_subscription_feature' => \Turahe\PlanSubscription\Models\PlanSubscriptionFeature::class,
-                //                'plan_subscription_schedule' => \Turahe\PlanSubscription\Models\PlanSubscriptionSchedule::class,
-                'subscription_usage' => \Turahe\Subscription\Models\PlanSubscriptionUsage::class,
-            ],
-            'services' => [
-                'payment_methods' => [
-                    //                    'success' => \Turahe\PlanSubscription\Tests\Services\PaymentMethods\SucceededPaymentMethod::class,
-                    //                    'fail' => \Turahe\PlanSubscription\Tests\Services\PaymentMethods\FailedPaymentMethod::class
-                ],
             ],
         ]);
 
@@ -95,8 +83,6 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
         $this->app['db']->connection()->getSchemaBuilder()->create('users', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->string('name');
-            $table->string('email')->unique();
             $table->timestamps();
         });
     }

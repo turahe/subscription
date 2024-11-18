@@ -5,8 +5,8 @@ namespace Turahe\Subscription\Tests\Unit;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\Attributes\Test;
-use Turahe\Subscription\Tests\Models\Plan;
-use Turahe\Subscription\Tests\Models\PlanFeature;
+use Turahe\Subscription\Models\Plan;
+use Turahe\Subscription\Models\PlanFeature;
 use Turahe\Subscription\Tests\TestCase;
 
 class PlanTest extends TestCase
@@ -20,6 +20,7 @@ class PlanTest extends TestCase
             'description' => $this->faker->sentence,
             'is_active' => $this->faker->boolean,
             'price' => $this->faker->randomDigitNotNull(),
+            'currency' => $this->faker->currencyCode,
         ];
 
         $plan = Plan::create($data);
@@ -27,6 +28,7 @@ class PlanTest extends TestCase
         $this->assertEquals($data['name'], $plan->name);
         $this->assertEquals($data['description'], $plan->description);
         $this->assertEquals($data['is_active'], $plan->is_active);
+        $this->assertEquals($data['currency'], $plan->currency);
     }
 
     #[Test]
@@ -116,7 +118,7 @@ class PlanTest extends TestCase
     {
         $plan = Plan::factory()->create();
         $feature = PlanFeature::factory()->create([
-            'plan_id' => $plan->id,
+            'plan_id' => $plan->getKey(),
             'slug' => 'test-1',
         ]);
 
