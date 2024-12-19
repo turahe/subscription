@@ -4,15 +4,15 @@ namespace Turahe\Subscription\Tests\Unit;
 
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
-use PHPUnit\Framework\Attributes\Test;
+use Turahe\Subscription\Enums\Interval;
 use Turahe\Subscription\Models\Plan;
-use Turahe\Subscription\Models\PlanFeature;
+use Turahe\Subscription\Tests\Factories\PlanFactory;
+use Turahe\Subscription\Tests\Factories\PlanFeatureFactory;
 use Turahe\Subscription\Tests\TestCase;
 
 class PlanTest extends TestCase
 {
-    #[Test]
-    public function it_can_create_the_plan()
+    public function test_can_create_the_plan()
     {
         $data = [
             'name' => 'plan 1',
@@ -31,10 +31,9 @@ class PlanTest extends TestCase
         $this->assertEquals($data['currency'], $plan->currency);
     }
 
-    #[Test]
-    public function it_can_delete_a_plan()
+    public function test_can_delete_a_plan()
     {
-        $plan = Plan::factory()->create();
+        $plan = PlanFactory::new()->create();
         $deleted = $plan->delete();
 
         $this->assertTrue($deleted);
@@ -46,19 +45,17 @@ class PlanTest extends TestCase
         ]);
     }
 
-    #[Test]
-    public function it_errors_when_updating_the_plan()
+    public function test_errors_when_updating_the_plan()
     {
-        $plan = Plan::factory()->create();
+        $plan = PlanFactory::new()->create();
         $this->expectException(QueryException::class);
 
         $plan->update(['name' => null]);
     }
 
-    #[Test]
-    public function it_can_update_the_plan()
+    public function test_can_update_the_plan()
     {
-        $plan = Plan::factory()->create();
+        $plan = PlanFactory::new()->create();
 
         $update = ['name' => 'name'];
         $updated = $plan->update($update);
@@ -69,10 +66,9 @@ class PlanTest extends TestCase
         $this->assertEquals($update['name'], $plan->name);
     }
 
-    #[Test]
-    public function it_can_find_the_plan()
+    public function test_can_find_the_plan()
     {
-        $plan = Plan::factory()->create();
+        $plan = PlanFactory::new()->create();
 
         $found = Plan::find($plan->id);
 
@@ -80,44 +76,39 @@ class PlanTest extends TestCase
         $this->assertEquals($plan->username, $found->username);
     }
 
-    #[Test]
-    public function it_can_list_all_plans()
+    public function test_can_list_all_plans()
     {
-        $plans = Plan::factory(3)->create();
+        $plans = PlanFactory::new()->count(3)->create();
 
         $this->assertInstanceOf(Collection::class, $plans);
         $this->assertCount(3, $plans->all());
     }
 
-    #[Test]
-    public function it_can_check_is_plan_is_free()
+    public function test_can_check_is_plan_is_free()
     {
-        $plan = Plan::factory()->create(['price' => 0]);
+        $plan = PlanFactory::new()->create(['price' => 0]);
 
         $this->assertTrue($plan->isFree());
     }
 
-    #[Test]
-    public function it_can_check_is_plan_is_trial()
+    public function test_can_check_is_plan_is_trial()
     {
-        $plan = Plan::factory()->create(['trial_period' => 3, 'trial_interval' => 'day']);
+        $plan = PlanFactory::new()->create(['trial_period' => 3, 'trial_interval' => Interval::Day]);
 
         $this->assertTrue($plan->hasTrial());
     }
 
-    #[Test]
-    public function it_can_check_is_plan_is_grace_period()
+    public function test_can_check_is_plan_is_grace_period()
     {
-        $plan = Plan::factory()->create(['grace_period' => 3, 'grace_interval' => 'day']);
+        $plan = PlanFactory::new()->create(['grace_period' => 3, 'grace_interval' => Interval::Day]);
 
         $this->assertTrue($plan->hasTrial());
     }
 
-    #[Test]
-    public function it_can_get_features_by_slug()
+    public function test_can_get_features_by_slug()
     {
-        $plan = Plan::factory()->create();
-        $feature = PlanFeature::factory()->create([
+        $plan = PlanFactory::new()->create();
+        $feature = PlanFeatureFactory::new()->create([
             'plan_id' => $plan->getKey(),
             'slug' => 'test-1',
         ]);

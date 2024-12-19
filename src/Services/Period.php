@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Turahe\Subscription\Services;
 
 use Carbon\Carbon;
+use Turahe\Subscription\Enums\Interval;
 
 final class Period
 {
@@ -12,7 +13,7 @@ final class Period
 
     private Carbon|string $end;
 
-    private string $interval;
+    private $interval;
 
     private int $period;
 
@@ -22,7 +23,7 @@ final class Period
      *
      * @return void
      */
-    public function __construct(string $interval = 'month', int $count = 1, ?Carbon $start = null)
+    public function __construct(Interval $interval = Interval::Month, int $count = 1, ?Carbon $start = null)
     {
         $this->interval = $interval;
 
@@ -36,7 +37,7 @@ final class Period
 
         $this->period = $count;
         $start = clone $this->start;
-        $method = 'add'.ucfirst($this->interval).'s';
+        $method = 'add'.ucfirst($this->interval->value).'s';
         $this->end = $start->{$method}($this->period);
     }
 
@@ -52,7 +53,7 @@ final class Period
 
     public function getInterval(): string
     {
-        return $this->interval;
+        return $this->interval->value;
     }
 
     public function getIntervalCount(): int

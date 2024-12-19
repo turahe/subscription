@@ -1,9 +1,8 @@
 <?php
 
-namespace Turahe\Subscription\Database\Factories;
+namespace Turahe\Subscription\Tests\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use Turahe\Subscription\Enums\Interval;
 use Turahe\Subscription\Models\Plan;
 
@@ -17,15 +16,14 @@ class PlanFactory extends Factory
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name),
             'description' => $this->faker->sentence,
             'is_active' => $this->faker->boolean,
             'price' => $this->faker->randomDigitNotNull(),
             'signup_fee' => 1.99,
             'invoice_period' => 1,
-            'invoice_interval' => Interval::Month->value,
+            'invoice_interval' => Interval::Month,
             'trial_period' => 15,
-            'trial_interval' => Interval::Day->value,
+            'trial_interval' => Interval::Day,
             'currency' => 'USD',
         ];
     }

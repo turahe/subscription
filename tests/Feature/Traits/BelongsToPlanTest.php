@@ -3,29 +3,28 @@
 namespace Turahe\Subscription\Tests\Feature\Traits;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Collection;
-use PHPUnit\Framework\Attributes\Test;
-use Turahe\Subscription\Models\Plan;
 use Turahe\Subscription\Models\PlanFeature;
+use Turahe\Subscription\Tests\Factories\PlanFactory;
+use Turahe\Subscription\Tests\Factories\PlanFeatureFactory;
 use Turahe\Subscription\Tests\TestCase;
 
 class BelongsToPlanTest extends TestCase
 {
-    public function testBelongsToPlan()
+    public function test_belongs_to_plan()
     {
-        $plan = Plan::factory()->create();
-        $feature = PlanFeature::factory()->create([
+        $plan = PlanFactory::new()->create();
+        $feature = PlanFeatureFactory::new()->create([
             'plan_id' => $plan->getKey(),
         ]);
 
         $this->assertInstanceOf(BelongsTo::class, $feature->plan());
     }
 
-    public function testScopeByPlanId()
+    public function test_scope_byp_lan_id()
     {
-        $plan = Plan::factory()->create();
-        PlanFeature::factory(3)->create([
+        $plan = PlanFactory::new()->create();
+        PlanFeatureFactory::new()->count(3)->create([
             'plan_id' => $plan->getKey(),
         ]);
 

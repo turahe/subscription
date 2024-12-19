@@ -17,8 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Turahe\\Subscription\\": "src/",
-            "Turahe\\Subscription\\Database\\Factories\\": "database/factories/"
+            "Turahe\\Subscription\\": "src/"
         }
     },
     "autoload-dev": {

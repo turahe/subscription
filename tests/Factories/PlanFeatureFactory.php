@@ -1,6 +1,6 @@
 <?php
 
-namespace Turahe\Subscription\Database\Factories;
+namespace Turahe\Subscription\Tests\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Turahe\Subscription\Models\PlanFeature;
