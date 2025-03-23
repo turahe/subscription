@@ -43,9 +43,14 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete();
 
-            $table->integer('deleted_at')->index()->nullable();
-            $table->integer('created_at')->index()->nullable();
-            $table->integer('updated_at')->index()->nullable();
+            if (config('core.table.use_timestamps')) {
+                $table->timestamps();
+                $table->softDeletes();
+            } else {
+                $table->integer('created_at')->index()->nullable();
+                $table->integer('updated_at')->index()->nullable();
+                $table->integer('deleted_at')->index()->nullable();
+            }
         });
     }
 
