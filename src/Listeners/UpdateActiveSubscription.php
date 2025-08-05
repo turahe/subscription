@@ -1,20 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Turahe\Subscription\Listeners;
 
 use Turahe\Subscription\Events\SubscriptionCancelled;
+use Turahe\Subscription\Events\SubscriptionUpdated;
+use Turahe\Subscription\Events\UserSubscribed;
 
 class UpdateActiveSubscription
 {
-    /**
-     * Handle the event.
-     *
-     * @return void
-     */
-    public function handle($event)
+    public function handle(UserSubscribed|SubscriptionUpdated|SubscriptionCancelled $event): void
     {
-        $currentPlan = $event instanceof SubscriptionCancelled
-                            ? null : $event->user->subscription()->provider_plan;
+        $currentPlan = match (true) {
+            $event instanceof SubscriptionCancelled => null,
+            default => $event->user->subscription()?->provider_plan,
+        };
 
         $event->user->forceFill([
             'current_billing_plan' => $currentPlan,

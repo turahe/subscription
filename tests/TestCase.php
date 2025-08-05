@@ -52,6 +52,8 @@ class TestCase extends \Orchestra\Testbench\TestCase
             'models' => [
                 'plan' => \Turahe\Subscription\Models\Plan::class,
                 'feature' => \Turahe\Subscription\Models\PlanFeature::class,
+                'subscription' => \Turahe\Subscription\Models\PlanSubscription::class,
+                'subscription_usage' => \Turahe\Subscription\Models\PlanSubscriptionUsage::class,
             ],
         ]);
 
@@ -83,6 +85,9 @@ class TestCase extends \Orchestra\Testbench\TestCase
 
         $this->app['db']->connection()->getSchemaBuilder()->create('users', function (Blueprint $table) {
             $table->ulid('id')->primary();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('password');
             $table->timestamps();
         });
     }

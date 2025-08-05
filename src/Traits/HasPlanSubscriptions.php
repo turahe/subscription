@@ -15,8 +15,8 @@ trait HasPlanSubscriptions
 {
     protected static function bootHasSubscriptions(): void
     {
-        static::deleted(function ($plan): void {
-            $plan->subscriptions()->delete();
+        static::deleted(function (self $model): void {
+            $model->planSubscriptions()->delete();
         });
     }
 
@@ -26,7 +26,7 @@ trait HasPlanSubscriptions
     public function planSubscriptions(): MorphMany
     {
         return $this->morphMany(
-            related: config('subscription.models.subscription', PlanSubscription::class),
+            related: config('subscription.models.subscription'),
             name: 'subscriber',
             type: 'subscriber_type',
             id: 'subscriber_id'
@@ -50,7 +50,12 @@ trait HasPlanSubscriptions
             ->pluck('plan_id')
             ->unique();
 
-        return tap(new (config('subscription.models.plan')))->whereIn('id', $planIds)->get();
+        if ($planIds->isEmpty()) {
+            return new Collection();
+        }
+
+        $planClass = config('subscription.models.plan');
+        return $planClass::whereIn('id', $planIds)->get();
     }
 
     public function subscribedTo(int|string $planId): bool
@@ -59,26 +64,38 @@ trait HasPlanSubscriptions
             ->where('plan_id', $planId)
             ->first();
 
-        return $subscription && $subscription->active();
+        return $subscription?->active() ?? false;
     }
 
     public function newPlanSubscription(string $subscription, Plan $plan, ?Carbon $startDate = null): PlanSubscription
     {
-        $trial = new Period(
-            interval: $plan->trial_interval,
-            count: $plan->trial_period,
-            start: $startDate ?? Carbon::now()
-        );
+        $start = $startDate ?? Carbon::now();
+        
+        // Handle trial period
+        if ($plan->trial_period > 0) {
+            $trial = new Period(
+                interval: $plan->trial_interval,
+                count: $plan->trial_period,
+                start: $start
+            );
+            $trialEndDate = $trial->getEndDate();
+            $subscriptionStart = $trialEndDate;
+        } else {
+            $trialEndDate = null;
+            $subscriptionStart = $start;
+        }
+
+        // Create subscription period
         $period = new Period(
             interval: $plan->invoice_interval,
             count: $plan->invoice_period,
-            start: $trial->getEndDate()
+            start: $subscriptionStart
         );
 
         return $this->planSubscriptions()->create([
             'name' => $subscription,
             'plan_id' => $plan->getKey(),
-            'trial_ends_at' => $trial->getEndDate(),
+            'trial_ends_at' => $trialEndDate,
             'starts_at' => $period->getStartDate(),
             'ends_at' => $period->getEndDate(),
         ]);

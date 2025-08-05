@@ -1,24 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Turahe\Subscription\Events;
 
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
 use Turahe\Subscription\Models\Plan;
 
 class Saving
 {
-    use Dispatchable, SerializesModels;
-
-    /**
-     * Create a new event instance.
-     *
-     * @return void
-     */
-    public function __construct(public Plan $subscriptionPlan)
-    {
-        if ($subscriptionPlan->featured) {
-            Plan::where('featured', 1)->update(['featured' => 0]);
-        }
+    public function __construct(
+        public readonly Plan $subscriptionPlan,
+    ) {
     }
 }

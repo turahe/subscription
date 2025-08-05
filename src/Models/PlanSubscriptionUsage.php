@@ -19,26 +19,21 @@ class PlanSubscriptionUsage extends Model
     use SoftDeletes;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $fillable = [
-        'subscription_id',
-        'feature_id',
+        'plan_subscription_id',
+        'plan_feature_id',
         'used',
         'valid_until',
     ];
 
     /**
-     * @var string
-     */
-    protected $dateFormat = 'U';
-
-    /**
-     * @var string[]
+     * @var array<string, mixed>
      */
     protected $casts = [
-        'subscription_id' => 'integer',
-        'feature_id' => 'integer',
+        'plan_subscription_id' => 'string',
+        'plan_feature_id' => 'string',
         'used' => 'integer',
         'valid_until' => 'datetime',
         'deleted_at' => 'datetime',
@@ -51,28 +46,24 @@ class PlanSubscriptionUsage extends Model
 
     public function feature(): BelongsTo
     {
-        return $this->belongsTo(config('subscription.models.feature'), 'feature_id', 'id', 'feature');
+        return $this->belongsTo(config('subscription.models.feature'), 'plan_feature_id', 'id', 'feature');
     }
 
     public function subscription(): BelongsTo
     {
-        return $this->belongsTo(config('subscription.models.subscription'), 'subscription_id', 'id', 'subscription');
+        return $this->belongsTo(config('subscription.models.subscription'), 'plan_subscription_id', 'id', 'subscription');
     }
 
     public function scopeByFeatureSlug(Builder $builder, string $featureSlug): Builder
     {
-        $model = config('subscription.models.feature', PlanFeature::class);
+        $model = config('subscription.models.feature');
         $feature = tap(new $model)->where('slug', $featureSlug)->first();
 
-        return $builder->where('feature_id', $feature ? $feature->getKey() : null);
+        return $builder->where('feature_id', $feature?->getKey());
     }
 
     public function expired(): bool
     {
-        if (! $this->valid_until) {
-            return false;
-        }
-
-        return Carbon::now()->gte($this->valid_until);
+        return $this->valid_until?->isPast() ?? false;
     }
 }

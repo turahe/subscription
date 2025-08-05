@@ -28,7 +28,7 @@ class PlanFeature extends Model implements Sortable
     use SortableTrait;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $fillable = [
         'plan_id',
@@ -42,12 +42,7 @@ class PlanFeature extends Model implements Sortable
     ];
 
     /**
-     * @var string
-     */
-    protected $dateFormat = 'U';
-
-    /**
-     * @var string[]
+     * @var array<string, mixed>
      */
     protected $casts = [
         'plan_id' => 'integer',
@@ -59,12 +54,16 @@ class PlanFeature extends Model implements Sortable
         'deleted_at' => 'datetime',
     ];
 
-    /**
-     * @var array|string[]
-     */
-    public array $sortable = [
-        'order_column_name' => 'record_ordering',
-    ];
+    public readonly array $sortable;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        
+        $this->sortable = [
+            'order_column_name' => 'record_ordering',
+        ];
+    }
 
     public function getTable(): string
     {
@@ -83,19 +82,22 @@ class PlanFeature extends Model implements Sortable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->doNotGenerateSlugsOnUpdate()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
     }
 
     public function usage(): HasMany
     {
-        return $this->hasMany(config('subscription.models.subscription_usage', PlanSubscriptionUsage::class));
+        return $this->hasMany(config('subscription.models.subscription_usage'));
     }
 
     public function getResetDate(?Carbon $dateFrom = null): Carbon
     {
-        $period = new Period($this->resettable_interval, $this->resettable_period, $dateFrom ?? Carbon::now());
+        $period = new Period(
+            interval: $this->resettable_interval,
+            count: $this->resettable_period,
+            start: $dateFrom ?? Carbon::now()
+        );
 
         return $period->getEndDate();
     }

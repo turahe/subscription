@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create(config('subscription.tables.subscription_usage', 'plan_subscription_usage'), function (Blueprint $table): void {
             $table->ulid('id')->primary();
 
-            $table->foreignIdFor(config('subscription.models.subscription', PLanSubscription::class));
-            $table->foreignIdFor(config('subscription.models.feature', PlanFeature::class));
+            $table->foreignUlid('plan_subscription_id')->constrained('plan_subscriptions');
+            $table->foreignUlid('plan_feature_id')->constrained('plan_features');
             $table->unsignedSmallInteger('used');
             $table->string('timezone')->nullable();
 
@@ -38,14 +38,8 @@ return new class extends Migration
                 ->constrained('users')
                 ->cascadeOnDelete();
 
-            if (config('core.table.use_timestamps')) {
                 $table->timestamps();
                 $table->softDeletes();
-            } else {
-                $table->integer('created_at')->index()->nullable();
-                $table->integer('updated_at')->index()->nullable();
-                $table->integer('deleted_at')->index()->nullable();
-            }
         });
     }
 

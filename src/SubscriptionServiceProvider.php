@@ -1,19 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Turahe\Subscription;
 
+use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 
 class SubscriptionServiceProvider extends ServiceProvider
 {
-    /**
-     * Boot the application events.
-     */
+    public readonly string $packageName;
+
+    public function __construct($app)
+    {
+        parent::__construct($app);
+        $this->packageName = 'subscription';
+    }
+
     public function boot(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/subscription.php', 'subscription');
 
-        if ($this->app instanceof \Illuminate\Foundation\Application) {
+        if ($this->app instanceof Application) {
             $databasePath = __DIR__.'/../database/migrations';
             $this->loadMigrationsFrom($databasePath);
 
@@ -24,5 +32,15 @@ class SubscriptionServiceProvider extends ServiceProvider
                 'config'
             );
         }
+    }
+
+    public function getConfigPath(): string
+    {
+        return __DIR__.'/../config/subscription.php';
+    }
+
+    public function getMigrationPath(): string
+    {
+        return __DIR__.'/../database/migrations';
     }
 }

@@ -18,7 +18,11 @@ class SubscriptionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user = User::create([]);
+        $this->user = User::create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+        ]);
         $this->plan = PlanFactory::new()->create();
 
     }

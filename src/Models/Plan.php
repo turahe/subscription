@@ -24,7 +24,7 @@ class Plan extends Model implements Sortable
     use SortableTrait;
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $fillable = [
         'slug',
@@ -70,18 +70,19 @@ class Plan extends Model implements Sortable
         ];
     }
 
-    /**
-     * @var string
-     */
     protected $dateFormat = 'U';
 
-    /**
-     * @var array|string[]
-     */
-    public array $sortable = [
-        'order_column_name' => 'record_ordering',
-        'sort_when_creating' => true,
-    ];
+    public readonly array $sortable;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        
+        $this->sortable = [
+            'order_column_name' => 'record_ordering',
+            'sort_when_creating' => true,
+        ];
+    }
 
     public function getTable(): string
     {
@@ -92,7 +93,7 @@ class Plan extends Model implements Sortable
     {
         parent::boot();
 
-        static::deleted(function ($plan): void {
+        static::deleted(function (Plan $plan): void {
             $plan->features()->delete();
             $plan->subscriptions()->delete();
         });
@@ -101,34 +102,33 @@ class Plan extends Model implements Sortable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->doNotGenerateSlugsOnUpdate()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
     }
 
     public function features(): HasMany
     {
-        return $this->hasMany(config('subscription.models.feature', PlanFeature::class), 'plan_id');
+        return $this->hasMany(config('subscription.models.feature'));
     }
 
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(config('subscription.models.subscription', PlanSubscription::class), 'plan_id');
+        return $this->hasMany(config('subscription.models.subscription'));
     }
 
     public function isFree(): bool
     {
-        return $this->price <= 0.00;
+        return $this->price <= 0;
     }
 
     public function hasTrial(): bool
     {
-        return $this->trial_period && $this->trial_interval;
+        return $this->trial_period > 0;
     }
 
     public function hasGrace(): bool
     {
-        return $this->grace_period && $this->grace_interval;
+        return $this->grace_period > 0;
     }
 
     public function getFeatureBySlug(string $featureSlug): ?PlanFeature
@@ -136,24 +136,16 @@ class Plan extends Model implements Sortable
         return $this->features()->where('slug', $featureSlug)->first();
     }
 
-    /**
-     * @return $this
-     */
     public function activate(): self
     {
-        $this->is_active = true;
-        $this->save();
+        $this->update(['is_active' => true]);
 
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function deactivate(): self
     {
-        $this->is_active = false;
-        $this->save();
+        $this->update(['is_active' => false]);
 
         return $this;
     }

@@ -9,36 +9,11 @@ use Turahe\Subscription\Enums\Interval;
 
 final class Period
 {
-    private Carbon|string $start;
-
-    private Carbon|string $end;
-
-    private $interval;
-
-    private int $period;
-
-    /**
-     * Create a new Period instance.
-     *
-     *
-     * @return void
-     */
-    public function __construct(Interval $interval = Interval::Month, int $count = 1, ?Carbon $start = null)
-    {
-        $this->interval = $interval;
-
-        if (empty($start)) {
-            $this->start = Carbon::now();
-        } elseif (! $start instanceof Carbon) {
-            $this->start = new Carbon($start);
-        } else {
-            $this->start = $start;
-        }
-
-        $this->period = $count;
-        $start = clone $this->start;
-        $method = 'add'.ucfirst($this->interval->value).'s';
-        $this->end = $start->{$method}($this->period);
+    public function __construct(
+        private readonly Interval $interval = Interval::Month,
+        private readonly int $count = 1,
+        private readonly Carbon $start = new Carbon(),
+    ) {
     }
 
     public function getStartDate(): Carbon
@@ -48,7 +23,10 @@ final class Period
 
     public function getEndDate(): Carbon
     {
-        return $this->end;
+        $end = clone $this->start;
+        $method = 'add' . ucfirst(strtolower($this->interval->value)) . 's';
+        
+        return $end->{$method}($this->count);
     }
 
     public function getInterval(): string
@@ -58,6 +36,6 @@ final class Period
 
     public function getIntervalCount(): int
     {
-        return $this->period;
+        return $this->count;
     }
 }

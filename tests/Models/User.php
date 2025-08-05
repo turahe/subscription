@@ -11,4 +11,10 @@ class User extends \Illuminate\Foundation\Auth\User
     use HasUlids;
 
     protected $table = 'users';
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
 }

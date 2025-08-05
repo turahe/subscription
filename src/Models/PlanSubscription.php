@@ -26,10 +26,10 @@ class PlanSubscription extends Model
     use HasUserStamps;
     use SoftDeletes;
 
-    const EXPIRES_AT = 'ends_at';
+    public const EXPIRES_AT = 'ends_at';
 
     /**
-     * @var string[]
+     * @var array<string>
      */
     protected $fillable = [
         'subscriber_id',
@@ -46,17 +46,12 @@ class PlanSubscription extends Model
     ];
 
     /**
-     * @var string
-     */
-    protected $dateFormat = 'U';
-
-    /**
-     * @var string[]
+     * @var array<string, mixed>
      */
     protected $casts = [
-        'subscriber_id' => 'integer',
+        'subscriber_id' => 'string',
         'subscriber_type' => 'string',
-        'plan_id' => 'integer',
+        'plan_id' => 'string',
         'slug' => 'string',
         'trial_ends_at' => 'datetime',
         'starts_at' => 'datetime',
@@ -75,13 +70,13 @@ class PlanSubscription extends Model
     {
         parent::boot();
 
-        static::creating(function (self $model): void {
+        static::creating(function (PlanSubscription $model): void {
             if (! $model->starts_at || ! $model->ends_at) {
                 $model->setNewPeriod();
             }
         });
 
-        static::deleted(function (self $subscription): void {
+        static::deleted(function (PlanSubscription $subscription): void {
             $subscription->usage()->delete();
         });
     }
@@ -89,7 +84,6 @@ class PlanSubscription extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->doNotGenerateSlugsOnUpdate()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
     }
@@ -101,12 +95,12 @@ class PlanSubscription extends Model
 
     public function usage(): HasMany
     {
-        return $this->hasMany(config('subscription.models.subscription_usage', PlanSubscriptionUsage::class));
+        return $this->hasMany(config('subscription.models.subscription_usage'));
     }
 
     public function active(): bool
     {
-        return ! $this->ended() || $this->onTrial();
+        return $this->onTrial() || $this->ends_at->isFuture();
     }
 
     public function inactive(): bool
@@ -116,28 +110,25 @@ class PlanSubscription extends Model
 
     public function onTrial(): bool
     {
-        return $this->trial_ends_at && Carbon::now()->lt($this->trial_ends_at);
+        return $this->trial_ends_at && $this->trial_ends_at->isFuture();
     }
 
     public function canceled(): bool
     {
-        return $this->canceled_at && Carbon::now()->gte($this->canceled_at);
+        return $this->canceled_at !== null;
     }
 
     public function ended(): bool
     {
-        return $this->ends_at && Carbon::now()->gte($this->ends_at);
+        return $this->ends_at->isPast();
     }
 
-    /**
-     * @return $this
-     */
     public function cancel(bool $immediately = false): self
     {
         $this->canceled_at = Carbon::now();
 
         if ($immediately) {
-            $this->ends_at = $this->canceled_at;
+            $this->ends_at = Carbon::now();
         }
 
         $this->save();
@@ -145,68 +136,43 @@ class PlanSubscription extends Model
         return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function changePlan(Plan $plan): self
     {
-
-        // If plans does not have the same billing frequency
-        // (e.g., invoice_interval and invoice_period) we will update
-        // the billing dates starting today, and since we are basically creating
-        // a new billing cycle, the usage data will be cleared.
-        if ($this->plan->invoice_interval !== $plan->invoice_interval || $this->plan->invoice_period !== $plan->invoice_period) {
-            $this->setNewPeriod($plan->invoice_interval, $plan->invoice_period);
-            $this->usage()->delete();
-        }
-
-        // Attach new plan to subscription
         $this->plan_id = $plan->getKey();
+        $this->setNewPeriod(
+            invoice_interval: $plan->invoice_interval,
+            invoice_period: $plan->invoice_period,
+            start: Carbon::now()
+        );
         $this->save();
 
         return $this;
     }
 
-    /**
-     * Renew subscription period.
-     *
-     * @return $this
-     *
-     * @throws \LogicException
-     */
     public function renew(): self
     {
-        if ($this->ended() && $this->canceled()) {
-            throw new \LogicException('Unable to renew canceled ended subscription.');
+        if ($this->canceled() && $this->ended()) {
+            throw new \Exception('Cannot renew a canceled subscription that has ended.');
         }
 
-        $subscription = $this;
-
-        DB::transaction(function () use ($subscription): void {
-            // Clear usage data
-            $subscription->usage()->delete();
-
-            // Renew period
-            $subscription->setNewPeriod();
-            $subscription->canceled_at = null;
-            $subscription->save();
-        });
+        $this->setNewPeriod();
+        $this->usage()->delete();
+        $this->save();
 
         return $this;
     }
 
-    /**
-     * Get bookings of the given subscriber.
-     */
     public function scopeOfSubscriber(Builder $builder, Model $subscriber): Builder
     {
         return $builder->where('subscriber_type', $subscriber->getMorphClass())
             ->where('subscriber_id', $subscriber->getKey());
     }
 
-    /**
-     * Scope subscriptions with ending trial.
-     */
+    public function scopeByPlanId(Builder $builder, int|string $planId): Builder
+    {
+        return $builder->where('plan_id', $planId);
+    }
+
     public function scopeFindEndingTrial(Builder $builder, int $dayRange = 3): Builder
     {
         $from = Carbon::now();
@@ -215,17 +181,11 @@ class PlanSubscription extends Model
         return $builder->whereBetween('trial_ends_at', [$from, $to]);
     }
 
-    /**
-     * Scope subscriptions with ended trial.
-     */
     public function scopeFindEndedTrial(Builder $builder): Builder
     {
         return $builder->where('trial_ends_at', '<=', Carbon::now());
     }
 
-    /**
-     * Scope subscriptions with ending periods.
-     */
     public function scopeFindEndingPeriod(Builder $builder, int $dayRange = 3): Builder
     {
         $from = Carbon::now();
@@ -234,41 +194,28 @@ class PlanSubscription extends Model
         return $builder->whereBetween('ends_at', [$from, $to]);
     }
 
-    /**
-     * Scope subscriptions with ended periods.
-     */
     public function scopeFindEndedPeriod(Builder $builder): Builder
     {
         return $builder->where('ends_at', '<=', Carbon::now());
     }
 
-    /**
-     * Scope all active subscriptions for a user.
-     */
     public function scopeFindActive(Builder $builder): Builder
     {
-        return $builder->where('ends_at', '>', Carbon::now());
+        return $builder->where(function (Builder $query): void {
+            $query->where('trial_ends_at', '>', Carbon::now())
+                ->orWhere('ends_at', '>', Carbon::now());
+        });
     }
 
-    /**
-     * Set new subscription period.
-     *
-     * @return $this
-     */
     protected function setNewPeriod(string $invoice_interval = '', ?int $invoice_period = null, ?Carbon $start = null): self
     {
-        if (empty($invoice_interval)) {
-            $invoice_interval = $this->plan->invoice_interval;
-        }
-
-        if (empty($invoice_period)) {
-            $invoice_period = $this->plan->invoice_period;
-        }
+        $plan = $this->plan;
+        $start = $start ?? Carbon::now();
 
         $period = new Period(
-            interval: $invoice_interval,
-            count: $invoice_period,
-            start: $start ?? Carbon::now()
+            interval: $invoice_interval ?: $plan->invoice_interval,
+            count: $invoice_period ?: $plan->invoice_period,
+            start: $start
         );
 
         $this->starts_at = $period->getStartDate();
@@ -279,93 +226,96 @@ class PlanSubscription extends Model
 
     public function recordFeatureUsage(string $featureSlug, int $uses = 1, bool $incremental = true): PlanSubscriptionUsage
     {
-        $feature = $this->plan->features()->where('slug', $featureSlug)->first();
+        $feature = $this->plan->getFeatureBySlug($featureSlug);
 
-        $usage = $this->usage()->firstOrNew([
-            'subscription_id' => $this->getKey(),
-            'feature_id' => $feature->getKey(),
-        ]);
-
-        if ($feature->resettable_period) {
-            // Set expiration date when the usage record is new or doesn't have one.
-            if ($usage->valid_until === null) {
-                // Set date from subscription creation date so the reset
-                // period match the period specified by the subscription's plan.
-                $usage->valid_until = $feature->getResetDate($this->created_at);
-            } elseif ($usage->expired()) {
-                // If the usage record has been expired, let's assign
-                // a new expiration date and reset the uses to zero.
-                $usage->valid_until = $feature->getResetDate($usage->valid_until);
-                $usage->used = 0;
-            }
+        if (! $feature) {
+            throw new \Exception("Feature {$featureSlug} not found.");
         }
 
-        $usage->used = $incremental ? $usage->used + $uses : $uses;
+        $usage = $this->usage()->where('feature_id', $feature->getKey())->first();
 
-        $usage->save();
+        if (! $usage) {
+            $usage = $this->usage()->create([
+                'feature_id' => $feature->getKey(),
+                'used' => 0,
+            ]);
+        }
+
+        if ($incremental) {
+            $usage->increment('used', $uses);
+        } else {
+            $usage->update(['used' => $uses]);
+        }
 
         return $usage;
     }
 
     public function reduceFeatureUsage(string $featureSlug, int $uses = 1): ?PlanSubscriptionUsage
     {
-        $usage = $this->usage()->byFeatureSlug($featureSlug)->first();
+        $feature = $this->plan->getFeatureBySlug($featureSlug);
 
-        if ($usage === null) {
+        if (! $feature) {
             return null;
         }
 
-        $usage->used = max($usage->used - $uses, 0);
+        $usage = $this->usage()->where('feature_id', $feature->getKey())->first();
 
-        $usage->save();
+        if (! $usage) {
+            return null;
+        }
+
+        $usage->decrement('used', $uses);
 
         return $usage;
     }
 
-    /**
-     * Determine if the feature can be used.
-     */
     public function canUseFeature(string $featureSlug): bool
     {
-        $featureValue = $this->getFeatureValue($featureSlug);
-        $usage = $this->usage()->byFeatureSlug($featureSlug)->first();
+        $feature = $this->plan->getFeatureBySlug($featureSlug);
 
-        if ($featureValue === 'true') {
-            return true;
-        }
-
-        // If the feature value is zero, let's return false since
-        // there's no uses available. (useful to disable countable features)
-        if (! $usage || $usage->expired() || $featureValue === null || $featureValue === '0' || $featureValue === 'false') {
+        if (! $feature) {
             return false;
         }
 
-        // Check for available uses
-        return $this->getFeatureRemaining($featureSlug) > 0;
+        if ($feature->value === 0) {
+            return false;
+        }
+
+        $usage = $this->getFeatureUsage($featureSlug);
+
+        return $usage < $feature->value;
     }
 
-    /**
-     * Get how many times the feature has been used.
-     */
     public function getFeatureUsage(string $featureSlug): int
     {
-        $usage = $this->usage()->byFeatureSlug($featureSlug)->first();
+        $feature = $this->plan->getFeatureBySlug($featureSlug);
 
-        return (! $usage || $usage->expired()) ? 0 : $usage->used;
+        if (! $feature) {
+            return 0;
+        }
+
+        $usage = $this->usage()->where('feature_id', $feature->getKey())->first();
+
+        return $usage ? $usage->used : 0;
     }
 
-    /**
-     * Get the available uses.
-     */
-    public function getFeatureRemaining(string $featureSlug): int
+    public function getFeatureRemainings(string $featureSlug): int
     {
-        return $this->getFeatureValue($featureSlug) - $this->getFeatureUsage($featureSlug);
+        $feature = $this->plan->getFeatureBySlug($featureSlug);
+
+        if (! $feature) {
+            return 0;
+        }
+
+        $usage = $this->getFeatureUsage($featureSlug);
+
+        return max(0, $feature->value - $usage);
     }
 
     public function getFeatureValue(string $featureSlug): ?string
     {
-        $feature = $this->plan->features()->where('slug', $featureSlug)->first();
+        $feature = $this->plan->getFeatureBySlug($featureSlug);
 
-        return $feature->value ?? null;
+        return $feature?->value;
     }
 }

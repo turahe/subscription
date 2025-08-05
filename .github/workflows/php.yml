@@ -1,39 +1,190 @@
-name: PHP Composer
+name: PHP Tests
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main", "master", "develop" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main", "master" ]
 
 permissions:
   contents: read
 
 jobs:
-  build:
-
+  test:
+    name: Laravel ${{ matrix.laravel }} - PHP ${{ matrix.php }}
+    
     runs-on: ubuntu-24.04
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        laravel: [10.*, 11.*, 12.*]
+        php: [8.2, 8.3, 8.4]
+        exclude:
+          # Exclude PHP 8.4 with Laravel 10 (not supported)
+          - laravel: 10.*
+            php: 8.4
+          # Exclude PHP 8.2 with Laravel 12 (not supported)
+          - laravel: 12.*
+            php: 8.2
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, phar, tokenizer, xml, xmlwriter
+        coverage: xdebug
+        tools: composer:v2
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
 
-    - name: Cache Composer packages
+    - name: Get composer cache directory
       id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer packages
       uses: actions/cache@v3
       with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-php-
+          ${{ runner.os }}-php-${{ matrix.php }}-composer-
+
+    - name: Install Laravel
+      run: |
+        composer create-project --prefer-dist laravel/laravel laravel-test ${{ matrix.laravel }}
+        cd laravel-test
+        composer config minimum-stability dev
+        composer config prefer-stable true
+
+    - name: Install package dependencies
+      run: |
+        cd laravel-test
+        composer require turahe/subscription:dev-${{ github.ref_name }} --prefer-source
+        composer require --dev orchestra/testbench:^9.4
+
+    - name: Copy package files
+      run: |
+        cp -r src laravel-test/vendor/turahe/subscription/
+        cp -r config laravel-test/vendor/turahe/subscription/
+        cp -r database laravel-test/vendor/turahe/subscription/
+        cp composer.json laravel-test/vendor/turahe/subscription/
+
+    - name: Copy test files
+      run: |
+        cp -r tests laravel-test/vendor/turahe/subscription/
+        cp phpunit.xml.dist laravel-test/vendor/turahe/subscription/
+
+    - name: Setup test environment
+      run: |
+        cd laravel-test
+        cp .env.example .env
+        php artisan key:generate
+        php artisan config:cache
+
+    - name: Run migrations
+      run: |
+        cd laravel-test
+        php artisan migrate --force
+
+    - name: Run test suite
+      run: |
+        cd laravel-test
+        vendor/bin/phpunit --testdox --coverage-text --coverage-filter=vendor/turahe/subscription/src
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./laravel-test/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  lint:
+    name: Code Style Check
+    
+    runs-on: ubuntu-24.04
+    
+    strategy:
+      matrix:
+        php: [8.2]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, phar, tokenizer, xml, xmlwriter
+        tools: composer:v2
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-${{ matrix.php }}-composer-
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
+    - name: Run Laravel Pint
+      run: vendor/bin/pint --test
 
-    - name: Run test suite
-      run: vendor/bin/phpunit --testdox
+  security:
+    name: Security Check
+    
+    runs-on: ubuntu-24.04
+    
+    strategy:
+      matrix:
+        php: [8.2]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, phar, tokenizer, xml, xmlwriter
+        tools: composer:v2
+
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-${{ matrix.php }}-composer-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run security audit
+      run: composer audit --format=json --no-interaction
