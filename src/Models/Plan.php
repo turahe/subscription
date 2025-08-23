@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Turahe\Subscription\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Turahe\Core\Concerns\HasConfigurablePrimaryKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,7 +18,7 @@ use Turahe\UserStamps\Concerns\HasUserStamps;
 class Plan extends Model implements Sortable
 {
     use HasSlug;
-    use HasUlids;
+    use HasConfigurablePrimaryKey;
     use HasUserStamps;
     use SoftDeletes;
     use SortableTrait;
