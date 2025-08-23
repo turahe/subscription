@@ -1,20 +1,26 @@
 {
     "name": "turahe/subscription",
     "description": "A flexible and feature-rich subscription management system for Laravel applications",
+    "license": "MIT",
     "authors": [
         {
             "name": "Nur Wachid",
             "email": "wachid@outlook.com"
         }
     ],
-    "extra": {
-        "laravel": {
-            "providers": [
-                "Turahe\\Subscription\\SubscriptionServiceProvider"
-            ],
-            "aliases": {}
-        }
+    "require": {
+        "php": "^8.4",
+        "spatie/eloquent-sortable": "^4.4",
+        "spatie/laravel-sluggable": "^3.6",
+        "turahe/laravel-userstamps": "^1.0",
+        "turahe/master-data": "^1.0"
     },
+    "require-dev": {
+        "laravel/pint": "^1.17",
+        "orchestra/testbench": "^10.0"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
     "autoload": {
         "psr-4": {
             "Turahe\\Subscription\\": "src/"
@@ -25,27 +31,20 @@
             "Turahe\\Subscription\\Tests\\": "tests/"
         }
     },
-    "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test:coverage": "vendor/bin/phpunit --coverage-html coverage"
-    },
-    "license": "MIT",
-    "require": {
-        "php": "^8.4",
-        "spatie/eloquent-sortable": "^4.4",
-        "spatie/laravel-sluggable": "^3.6",
-        "turahe/laravel-userstamps": "^1.0",
-        "turahe/master-data": "^1.0"
-    },
-    "require-dev": {
-        "laravel/pint": "^1.17",
-        "orchestra/testbench": "^9.4",
-        "phpunit/phpunit": "^10.0"
-    },
     "config": {
         "preferred-install": "dist",
         "sort-packages": true
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    "extra": {
+        "laravel": {
+            "aliases": {},
+            "providers": [
+                "Turahe\\Subscription\\SubscriptionServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test:coverage": "vendor/bin/phpunit --coverage-html coverage"
+    }
 }
