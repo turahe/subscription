@@ -1,6 +1,7 @@
 {
     "name": "turahe/subscription",
     "description": "A flexible and feature-rich subscription management system for Laravel applications",
+    "version": "1.2.0",
     "license": "MIT",
     "authors": [
         {
