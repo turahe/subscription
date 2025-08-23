@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Turahe\Subscription\Models;
 
-use Turahe\Core\Concerns\HasConfigurablePrimaryKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,6 +11,7 @@ use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Turahe\Subscription\Concerns\HasConfigurablePrimaryKey;
 use Turahe\Subscription\Enums\Interval;
 use Turahe\UserStamps\Concerns\HasUserStamps;
 
@@ -70,8 +70,6 @@ class Plan extends Model implements Sortable
         ];
     }
 
-    protected $dateFormat = 'U';
-
     public readonly array $sortable;
 
     public function __construct(array $attributes = [])
@@ -114,39 +112,5 @@ class Plan extends Model implements Sortable
     public function subscriptions(): HasMany
     {
         return $this->hasMany(config('subscription.models.subscription'));
-    }
-
-    public function isFree(): bool
-    {
-        return $this->price <= 0;
-    }
-
-    public function hasTrial(): bool
-    {
-        return $this->trial_period > 0;
-    }
-
-    public function hasGrace(): bool
-    {
-        return $this->grace_period > 0;
-    }
-
-    public function getFeatureBySlug(string $featureSlug): ?PlanFeature
-    {
-        return $this->features()->where('slug', $featureSlug)->first();
-    }
-
-    public function activate(): self
-    {
-        $this->update(['is_active' => true]);
-
-        return $this;
-    }
-
-    public function deactivate(): self
-    {
-        $this->update(['is_active' => false]);
-
-        return $this;
     }
 }

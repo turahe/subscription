@@ -19,15 +19,14 @@ class SubscriptionServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/subscription.php', 'subscription');
+        $this->mergeConfigFrom($this->getConfigPath(), 'subscription');
 
         if ($this->app instanceof Application) {
-            $databasePath = __DIR__.'/../database/migrations';
-            $this->loadMigrationsFrom($databasePath);
+            $this->loadMigrationsFrom($this->getMigrationPath());
 
             $this->publishes(
                 [
-                    __DIR__.'/../config/subscription.php' => config_path('subscription.php'),
+                    $this->getConfigPath() => config_path('subscription.php'),
                 ],
                 'config'
             );

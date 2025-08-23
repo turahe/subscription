@@ -6,7 +6,7 @@ namespace Turahe\Subscription\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Turahe\Core\Concerns\HasConfigurablePrimaryKey;
+use Turahe\Subscription\Concerns\HasConfigurablePrimaryKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -98,14 +98,10 @@ class PlanSubscription extends Model
         return $this->hasMany(config('subscription.models.subscription_usage'));
     }
 
-    public function active(): bool
+    public function setNewPeriod(): void
     {
-        return $this->onTrial() || $this->ends_at->isFuture();
-    }
-
-    public function inactive(): bool
-    {
-        return ! $this->active();
+        $this->starts_at = $this->starts_at ?: Carbon::now();
+        $this->ends_at = $this->ends_at ?: $this->plan->getNextBillingDate($this->starts_at);
     }
 
     public function onTrial(): bool
@@ -118,204 +114,50 @@ class PlanSubscription extends Model
         return $this->canceled_at !== null;
     }
 
-    public function ended(): bool
+    public function active(): bool
+    {
+        return ! $this->canceled() && $this->ends_at->isFuture();
+    }
+
+    public function expired(): bool
     {
         return $this->ends_at->isPast();
     }
 
-    public function cancel(bool $immediately = false): self
+    public function cancel(?Carbon $date = null): void
     {
-        $this->canceled_at = Carbon::now();
-
-        if ($immediately) {
-            $this->ends_at = Carbon::now();
-        }
-
-        $this->save();
-
-        return $this;
+        $this->update([
+            'canceled_at' => $date ?: Carbon::now(),
+            'ends_at' => $date ?: Carbon::now(),
+        ]);
     }
 
-    public function changePlan(Plan $plan): self
+    public function uncancel(): void
     {
-        $this->plan_id = $plan->getKey();
-        $this->setNewPeriod(
-            invoice_interval: $plan->invoice_interval,
-            invoice_period: $plan->invoice_period,
-            start: Carbon::now()
-        );
-        $this->save();
-
-        return $this;
+        $this->update([
+            'canceled_at' => null,
+            'ends_at' => $this->plan->getNextBillingDate($this->starts_at),
+        ]);
     }
 
-    public function renew(): self
+    public function scopeActive(Builder $query): Builder
     {
-        if ($this->canceled() && $this->ended()) {
-            throw new \Exception('Cannot renew a canceled subscription that has ended.');
-        }
-
-        $this->setNewPeriod();
-        $this->usage()->delete();
-        $this->save();
-
-        return $this;
+        return $query->where('ends_at', '>', Carbon::now())
+            ->whereNull('canceled_at');
     }
 
-    public function scopeOfSubscriber(Builder $builder, Model $subscriber): Builder
+    public function scopeExpired(Builder $query): Builder
     {
-        return $builder->where('subscriber_type', $subscriber->getMorphClass())
-            ->where('subscriber_id', $subscriber->getKey());
+        return $query->where('ends_at', '<=', Carbon::now());
     }
 
-    public function scopeByPlanId(Builder $builder, int|string $planId): Builder
+    public function scopeCanceled(Builder $query): Builder
     {
-        return $builder->where('plan_id', $planId);
+        return $query->whereNotNull('canceled_at');
     }
 
-    public function scopeFindEndingTrial(Builder $builder, int $dayRange = 3): Builder
+    public function scopeOnTrial(Builder $query): Builder
     {
-        $from = Carbon::now();
-        $to = Carbon::now()->addDays($dayRange);
-
-        return $builder->whereBetween('trial_ends_at', [$from, $to]);
-    }
-
-    public function scopeFindEndedTrial(Builder $builder): Builder
-    {
-        return $builder->where('trial_ends_at', '<=', Carbon::now());
-    }
-
-    public function scopeFindEndingPeriod(Builder $builder, int $dayRange = 3): Builder
-    {
-        $from = Carbon::now();
-        $to = Carbon::now()->addDays($dayRange);
-
-        return $builder->whereBetween('ends_at', [$from, $to]);
-    }
-
-    public function scopeFindEndedPeriod(Builder $builder): Builder
-    {
-        return $builder->where('ends_at', '<=', Carbon::now());
-    }
-
-    public function scopeFindActive(Builder $builder): Builder
-    {
-        return $builder->where(function (Builder $query): void {
-            $query->where('trial_ends_at', '>', Carbon::now())
-                ->orWhere('ends_at', '>', Carbon::now());
-        });
-    }
-
-    protected function setNewPeriod(string $invoice_interval = '', ?int $invoice_period = null, ?Carbon $start = null): self
-    {
-        $plan = $this->plan;
-        $start = $start ?? Carbon::now();
-
-        $period = new Period(
-            interval: $invoice_interval ?: $plan->invoice_interval,
-            count: $invoice_period ?: $plan->invoice_period,
-            start: $start
-        );
-
-        $this->starts_at = $period->getStartDate();
-        $this->ends_at = $period->getEndDate();
-
-        return $this;
-    }
-
-    public function recordFeatureUsage(string $featureSlug, int $uses = 1, bool $incremental = true): PlanSubscriptionUsage
-    {
-        $feature = $this->plan->getFeatureBySlug($featureSlug);
-
-        if (! $feature) {
-            throw new \Exception("Feature {$featureSlug} not found.");
-        }
-
-        $usage = $this->usage()->where('feature_id', $feature->getKey())->first();
-
-        if (! $usage) {
-            $usage = $this->usage()->create([
-                'feature_id' => $feature->getKey(),
-                'used' => 0,
-            ]);
-        }
-
-        if ($incremental) {
-            $usage->increment('used', $uses);
-        } else {
-            $usage->update(['used' => $uses]);
-        }
-
-        return $usage;
-    }
-
-    public function reduceFeatureUsage(string $featureSlug, int $uses = 1): ?PlanSubscriptionUsage
-    {
-        $feature = $this->plan->getFeatureBySlug($featureSlug);
-
-        if (! $feature) {
-            return null;
-        }
-
-        $usage = $this->usage()->where('feature_id', $feature->getKey())->first();
-
-        if (! $usage) {
-            return null;
-        }
-
-        $usage->decrement('used', $uses);
-
-        return $usage;
-    }
-
-    public function canUseFeature(string $featureSlug): bool
-    {
-        $feature = $this->plan->getFeatureBySlug($featureSlug);
-
-        if (! $feature) {
-            return false;
-        }
-
-        if ($feature->value === 0) {
-            return false;
-        }
-
-        $usage = $this->getFeatureUsage($featureSlug);
-
-        return $usage < $feature->value;
-    }
-
-    public function getFeatureUsage(string $featureSlug): int
-    {
-        $feature = $this->plan->getFeatureBySlug($featureSlug);
-
-        if (! $feature) {
-            return 0;
-        }
-
-        $usage = $this->usage()->where('feature_id', $feature->getKey())->first();
-
-        return $usage ? $usage->used : 0;
-    }
-
-    public function getFeatureRemainings(string $featureSlug): int
-    {
-        $feature = $this->plan->getFeatureBySlug($featureSlug);
-
-        if (! $feature) {
-            return 0;
-        }
-
-        $usage = $this->getFeatureUsage($featureSlug);
-
-        return max(0, $feature->value - $usage);
-    }
-
-    public function getFeatureValue(string $featureSlug): ?string
-    {
-        $feature = $this->plan->getFeatureBySlug($featureSlug);
-
-        return $feature?->value;
+        return $query->where('trial_ends_at', '>', Carbon::now());
     }
 }

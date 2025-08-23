@@ -15,10 +15,10 @@ class PeriodTest extends TestCase
     {
         $period = new Period(Interval::Month, 1, $now = Carbon::now());
         $this->assertEquals($now->format('Y-m-d H:i:s'), $period->getStartDate()->format('Y-m-d H:i:s'));
-        $this->assertEquals($now->addMonth()->format('Y-m-d H:i:s'), $period->getEndDate()->format('Y-m-d H:i:s'));
+        $this->assertEquals($now->copy()->addMonth()->format('Y-m-d H:i:s'), $period->getEndDate()->format('Y-m-d H:i:s'));
         $this->assertInstanceOf(Carbon::class, $period->getStartDate());
         $this->assertInstanceOf(Carbon::class, $period->getEndDate());
-        $this->assertEquals('MONTH', $period->getInterval());
+        $this->assertEquals('month', $period->getInterval());
         $this->assertEquals(1, $period->getIntervalCount());
     }
 
@@ -49,7 +49,7 @@ class PeriodTest extends TestCase
         $period = new Period(Interval::Month, $count);
 
         $this->assertEquals(Carbon::now()->format('Y-m-d H:i:s'), $period->getStartDate()->format('Y-m-d H:i:s'));
-        $this->assertEquals(Carbon::now()->addMonths($count)->format('Y-m-d H:i:s'), $period->getEndDate()->format('Y-m-d H:i:s'));
+        $this->assertEquals(Carbon::now()->copy()->addMonths($count)->format('Y-m-d H:i:s'), $period->getEndDate()->format('Y-m-d H:i:s'));
     }
 
     public static function provideStartAndEndDatePeriod(): Generator

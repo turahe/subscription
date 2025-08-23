@@ -4,21 +4,41 @@ declare(strict_types=1);
 
 namespace Turahe\Subscription\Listeners;
 
-use Turahe\Subscription\Events\SubscriptionCancelled;
-use Turahe\Subscription\Events\SubscriptionUpdated;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Turahe\Subscription\Events\UserSubscribed;
+use Turahe\Subscription\Models\PlanSubscription;
 
-class UpdateActiveSubscription
+class UpdateActiveSubscription implements ShouldQueue
 {
-    public function handle(UserSubscribed|SubscriptionUpdated|SubscriptionCancelled $event): void
-    {
-        $currentPlan = match (true) {
-            $event instanceof SubscriptionCancelled => null,
-            default => $event->user->subscription()?->provider_plan,
-        };
+    use InteractsWithQueue;
 
-        $event->user->forceFill([
-            'current_billing_plan' => $currentPlan,
-        ])->save();
+    public function __construct()
+    {
+        //
+    }
+
+    public function handle(UserSubscribed $event): void
+    {
+        try {
+            $subscription = $event->subscription;
+            
+            // Update any existing active subscriptions to inactive
+            $subscription->user->planSubscriptions()
+                ->where('id', '!=', $subscription->getKey())
+                ->where('is_active', true)
+                ->update(['is_active' => false]);
+
+            // Mark the new subscription as active
+            $subscription->update(['is_active' => true]);
+            
+        } catch (\Exception $e) {
+            // Log the error but don't fail the job
+            logger()->error('Failed to update active subscription', [
+                'subscription_id' => $event->subscription->getKey(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
     }
 }

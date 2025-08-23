@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace Turahe\Subscription\Traits;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait BelongsToPlan
 {
     public function plan(): BelongsTo
     {
-        return $this->belongsTo(config('subscription.models.plan'), 'plan_id');
+        return $this->belongsTo(config('subscription.models.plan'));
     }
 
-    public function scopeByPlanId(Builder $builder, string|int $planId): Builder
+    public function getPlanIdAttribute(): mixed
     {
-        return $builder->where('plan_id', $planId);
+        return $this->attributes['plan_id'] ?? null;
+    }
+
+    public function setPlanIdAttribute(mixed $value): void
+    {
+        $this->attributes['plan_id'] = $value;
     }
 }

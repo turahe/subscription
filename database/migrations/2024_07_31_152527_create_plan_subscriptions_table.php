@@ -15,18 +15,17 @@ return new class extends Migration
             if (config('userstamps.users_table_column_type') === 'bigincrements') {
                 $table->id();
                 $table->morphs('subscriber');
-                $table->foreignIdFor(config('subscription.models.plan', Plan::class));
-                
+                $table->foreignId('plan_id')->constrained('plans');
             }
             if (config('userstamps.users_table_column_type') === 'ulid') {
                 $table->ulid('id')->primary();
                 $table->ulidMorphs('subscriber');
-                $table->foreignUlidFor(config('subscription.models.plan', Plan::class));
+                $table->foreignUlid('plan_id')->constrained('plans');
             }
             if (config('userstamps.users_table_column_type') === 'uuid') {
                 $table->uuid('id')->primary();
                 $table->uuidMorphs('subscriber');
-                $table->foreignUuidFor(config('subscription.models.plan', Plan::class));
+                $table->foreignUuid('plan_id')->constrained('plans');
             }
 
             

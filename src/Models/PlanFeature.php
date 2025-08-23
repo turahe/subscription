@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Turahe\Subscription\Models;
 
 use Carbon\Carbon;
-use Turahe\Core\Concerns\HasConfigurablePrimaryKey;
+use Turahe\Subscription\Concerns\HasConfigurablePrimaryKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -45,7 +45,6 @@ class PlanFeature extends Model implements Sortable
      * @var array<string, mixed>
      */
     protected $casts = [
-        'plan_id' => 'integer',
         'slug' => 'string',
         'value' => 'integer',
         'resettable_period' => 'integer',

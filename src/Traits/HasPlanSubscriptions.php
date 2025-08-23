@@ -60,11 +60,13 @@ trait HasPlanSubscriptions
 
     public function subscribedTo(int|string $planId): bool
     {
-        $subscription = $this->planSubscriptions()
+        return $this->planSubscriptions()
             ->where('plan_id', $planId)
-            ->first();
-
-        return $subscription?->active() ?? false;
+            ->where(function ($query) {
+                $query->where('trial_ends_at', '>', now())
+                      ->orWhere('ends_at', '>', now());
+            })
+            ->exists();
     }
 
     public function newPlanSubscription(string $subscription, Plan $plan, ?Carbon $startDate = null): PlanSubscription
@@ -72,6 +74,9 @@ trait HasPlanSubscriptions
         $start = $startDate ?? Carbon::now();
         
         // Handle trial period
+        $trialEndDate = null;
+        $subscriptionStart = $start;
+        
         if ($plan->trial_period > 0) {
             $trial = new Period(
                 interval: $plan->trial_interval,
@@ -80,9 +85,6 @@ trait HasPlanSubscriptions
             );
             $trialEndDate = $trial->getEndDate();
             $subscriptionStart = $trialEndDate;
-        } else {
-            $trialEndDate = null;
-            $subscriptionStart = $start;
         }
 
         // Create subscription period

@@ -6,7 +6,7 @@ namespace Turahe\Subscription\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Turahe\Core\Concerns\HasConfigurablePrimaryKey;
+use Turahe\Subscription\Concerns\HasConfigurablePrimaryKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -59,7 +59,7 @@ class PlanSubscriptionUsage extends Model
         $model = config('subscription.models.feature');
         $feature = tap(new $model)->where('slug', $featureSlug)->first();
 
-        return $builder->where('feature_id', $feature?->getKey());
+        return $builder->where('plan_feature_id', $feature?->getKey());
     }
 
     public function expired(): bool
